@@ -1,10 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type Order struct {
-	gorm.Model
-	UserID uint
-	Product []Product  `gorm:"many2many:order_products;"`
-	Count int
+    ID                uint           `gorm:"primaryKey"`
+    UserID            uint
+    Tax               float64
+    StatusID          uint
+    AddressID         uint
+    PostalTrackingCode int
+    CreatedAt         time.Time
 }

@@ -1,19 +1,21 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 )
 
 type User struct {
-	ID          uint
-	Name        string
-	LastName    string
-	Email       *string
-	PhoneNumber sql.NullString
-	Orders       []Order
-	Address     Address
-	ActivatedAt sql.NullTime
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+    ID           uint           `gorm:"primaryKey"`
+    Name         string
+    LastName     string
+    Email        string         `gorm:"unique"`
+    PhoneNumber  string
+    RoleID       uint
+    DiscountID   uint
+    PasswordHash string
+    ActivatedAt  time.Time
+    CreatedAt    time.Time
+    UpdatedAt    time.Time
+    Roles        []Role        `gorm:"many2many:user_roles;"`
+    Addresses    []Address     `gorm:"many2many:user_addresses;"`
 }

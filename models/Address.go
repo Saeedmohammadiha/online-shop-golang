@@ -1,13 +1,18 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+)
 
 type Address struct {
-	gorm.Model
-	UserID      uint
-	Province    string
-	City        string
-	Street      string
-	PostalCode  string
-	Description string
+    ID          uint           `gorm:"primaryKey"`
+    UserID      uint
+    Province    string
+    City        string
+    Street      string
+    PostalCode  int
+    Description string         `gorm:"type:text"`
+    CreatedAt   time.Time
+    UpdatedAt   time.Time
+    Users       []User        `gorm:"many2many:user_addresses;"`
 }
