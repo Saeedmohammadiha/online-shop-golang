@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	models "github.com/OnlineShop/Models"
 	"github.com/OnlineShop/database"
+	models "github.com/OnlineShop/models"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
@@ -31,15 +31,27 @@ func userHandler(db *gorm.DB, userRouter *mux.Router) *gorm.DB {
 
 func main() {
 
+	db := databaseConfig.MysqlDatabaseConnection()
+	db.AutoMigrate(&models.User{},
+		&models.Product{},
+		&models.Order{},
+		&models.Address{},
+		&models.Comment{},
+		&models.Discount{},
+		&models.OrderItem{},
+		&models.OrderStatus{},
+		&models.Permission{},
+		&models.Role{},
+		&models.Score{},
+		&models.TransactionStatus{},
+		&models.Transaction{},
+	)
 
-	db := database.Database{}
-	db.NewConnection()
-	vb := db.GetDb()
 	router := mux.NewRouter()
 
 	api := router.PathPrefix("/v1/api")
 	userRouter := api.PathPrefix("/users").Subrouter()
-	userHandler(vb, userRouter)
+	userHandler(db, userRouter)
 
 	fmt.Println("server is listening on port 5000")
 
