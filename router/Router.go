@@ -18,11 +18,11 @@ type Router interface {
 
 var (
 	muxDisptcher = mux.NewRouter()
-	api          = muxDisptcher.PathPrefix("/v1/api")
+	api          = muxDisptcher.PathPrefix("/v1/api").Subrouter()
 )
 
 type MuxRouter struct {
-	apiRoute   *mux.Route
+	apiRoute   *mux.Router
 	dispatcher *mux.Router
 }
 
@@ -31,23 +31,19 @@ func NewRouter() Router {
 }
 
 func (router *MuxRouter) Get(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	basePath := router.apiRoute.PathPrefix(uri).Subrouter()
-	basePath.HandleFunc("", f).Methods("GET")
+	router.apiRoute.HandleFunc(uri, f).Methods("GET")
 }
 
 func (router *MuxRouter) Post(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	basePath := router.apiRoute.PathPrefix(uri).Subrouter()
-	basePath.HandleFunc("", f).Methods("POST")
+	router.apiRoute.HandleFunc(uri, f).Methods("POST")
 }
 
 func (router *MuxRouter) Put(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	basePath := router.apiRoute.PathPrefix(uri).Subrouter()
-	basePath.HandleFunc("", f).Methods("GET")
+	router.apiRoute.HandleFunc(uri, f).Methods("PUT")
 }
 
 func (router *MuxRouter) Delete(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	basePath := router.apiRoute.PathPrefix(uri).Subrouter()
-	basePath.HandleFunc("", f).Methods("GET")
+	router.apiRoute.HandleFunc(uri, f).Methods("DELETE")
 }
 
 func (d *MuxRouter) Serve(port string) {
