@@ -55,7 +55,7 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
 	//validate the inputs
 	uv := validation.NewUserValidator(&newUser)
-	errors := uv.Validate(r)
+	errors := uv.ValidateCreateUser(r)
 if errors != nil {
 	println(errors)
 	a, _ :=json.Marshal(errors)
