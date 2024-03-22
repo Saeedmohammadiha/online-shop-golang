@@ -7,6 +7,7 @@ import (
 
 	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
+	"github.com/OnlineShop/validation"
 	"github.com/gorilla/mux"
 )
 
@@ -50,12 +51,27 @@ func (u *UserService) FindAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
-
-	//get data from the request body and convert to json
 	var newUser models.User
+
+	//validate the inputs
+	uv := validation.NewUserValidator(&newUser)
+	errors := uv.Validate(r)
+if errors != nil {
+	println(errors)
+	a, _ :=json.Marshal(errors)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	//send response
+	w.Write(a)
+
+}
+	//get data from the request body and convert to json
 	err := json.NewDecoder(r.Body).Decode(&newUser)
 	if err != nil {
-		fmt.Println("fail to decode the body")
+		//fmt.Println("fail to decode the body")
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
 	}
 
 	//create the user in db
