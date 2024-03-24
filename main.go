@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -16,7 +17,7 @@ func main() {
 
 	userService := services.NewUserService(userRepo)
 	router := router.NewRouter()
-
+	
 	router.Get("/users", userService.FindAll)
 	router.Post("/users", userService.Create)
 	router.Get("/users/{id}", userService.FindById)
