@@ -1,6 +1,8 @@
 package models
 
+import "gorm.io/gorm"
+
 type Permission struct {
-	ID    uint   `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	gorm.Model
 	Title string `json:"title"`
 }

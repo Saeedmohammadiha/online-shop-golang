@@ -51,7 +51,7 @@ func (repo *RoleRepository) FindAll() ([]models.Role, error) {
 
 func (repo *RoleRepository) FindById(RoleID int) (*models.Role, error) {
 	var result models.Role
-	repo.Db.Model(models.Role{ID: 10}).First(&result)
+//	repo.Db.Model(models.Role{ID: 10}).First(&result)
 	return &result, nil
 
 }

@@ -1,12 +1,12 @@
 package models
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type Score struct {
-	ID        uint      `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
-	Rate      uint      `json:"rate"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	ProductID uint      `json:"productId"`
-	UserID    uint      `json:"userId"`
+	gorm.Model
+	Rate      uint `json:"rate"`
+	ProductID uint `json:"productId"`
+	UserID    uint `json:"userId"`
 }

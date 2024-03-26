@@ -1,6 +1,8 @@
 package models
 
+import "gorm.io/gorm"
+
 type TransactionStatus struct {
-	ID    uint   `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	gorm.Model
 	Title string `json:"title"`
 }

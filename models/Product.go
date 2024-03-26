@@ -1,19 +1,17 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 type Product struct {
-	ID         uint        `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	gorm.Model
 	Name       string      `json:"name"`
 	Price      float64     `json:"price"`
 	Quantity   uint        `json:"quantity"`
-	CreatedAt  time.Time   `json:"createdAt"`
-	UpdatedAt  time.Time   `json:"updatedAt"`
 	Summery    string      `json:"summery"`
 	Slug       string      `json:"slug"`
-	OrderItems []OrderItem `json:"orderItems,omitempty"` 
-	Scores     []Score     `json:"scores,omitempty"`     
-	Comments   []Comment   `json:"comments,omitempty"`   
+	OrderItems []OrderItem `json:"orderItems,omitempty"`
+	Scores     []Score     `json:"scores,omitempty"`
+	Comments   []Comment   `json:"comments,omitempty"`
 }
