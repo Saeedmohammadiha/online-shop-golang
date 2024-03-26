@@ -17,16 +17,14 @@ func NewUserValidator() *UserValidator {
 	return &UserValidator{}
 }
 
-func (*UserValidator) ValidateCreateUser(r dto.UserCreateRequest) error {
+func (*UserValidator) ValidateCreateUser(r dto.CreateUserRequest) error {
 
 	return validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.LastName, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.Email, validation.Required.Error("you must privide the email"), is.Email.Error("the email is invalid")),
 		validation.Field(&r.PhoneNumber, validation.Length(11, 11).Error("phone number must be 11 character"), is.Digit.Error("phone number should be number")),
-		validation.Field(&r.Password, NewValidatePassword(r.Password)),
-		validation.Field(&r.DiscountID, is.Digit.Error("phone number should be number")),
-	)
+		validation.Field(&r.Password, NewValidatePassword(r.Password)),	)
 
 }
 

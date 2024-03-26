@@ -5,14 +5,12 @@ import (
 )
 
 type Address struct {
-    ID          uint           `gorm:"primaryKey"`
-    UserID      uint
-    Province    string
-    City        string
-    Street      string
-    PostalCode  int
-    Description string         `gorm:"type:text"`
-    CreatedAt   time.Time
-    UpdatedAt   time.Time
-    Users       []User        `gorm:"many2many:user_addresses;"`
+	ID          uint      `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	Province    string    `json:"province"`
+	City        string    `json:"city"`
+	Street      string    `json:"street"`
+	PostalCode  uint      `json:"postalCode"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }

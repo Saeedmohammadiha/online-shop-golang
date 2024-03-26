@@ -22,32 +22,42 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 }
 
 func (repo *UserRepository) Create(user *models.User) (*models.User, error) {
-	repo.Db.Create(&user)
+	if err := repo.Db.Create(&user).Error; err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 
 func (repo *UserRepository) Update(user *models.User) (*models.User, error) {
-	repo.Db.Model(&user).Updates(user)
+	if err := repo.Db.Model(&user).Updates(user).Error; err != nil {
+		return nil, err
+	}
 	return user, nil
 }
 
 func (repo *UserRepository) Delete(userID int) error {
-	repo.Db.Where("ID = ?", userID).Delete(userID)
+	if err := repo.Db.Where("ID = ?", userID).Delete(userID).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
 func (repo *UserRepository) FindAll() ([]models.User, error) {
 	var users []models.User
-	repo.Db.Find(&users)
-	var results []models.User
-	results = append(results, users...)
+	if err := repo.Db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	//	var results []models.User
+	//results = append(results, users...)
 
-	return results, nil
+	return users, nil
 }
 
 func (repo *UserRepository) FindById(userID int) (*models.User, error) {
-	var result models.User
-	repo.Db.Model(models.User{ID: 10}).First(&result)
-	return &result, nil
+	var user models.User
+	if err := repo.Db.First(&user, userID).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
 
 }

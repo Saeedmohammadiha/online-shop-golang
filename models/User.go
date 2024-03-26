@@ -1,19 +1,20 @@
 package models
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 type User struct {
-	ID           uint      `gorm:"primaryKey" json:"id"`
-	Name         string    `json:"name"`
-	LastName     string    `json:"lastName"`
-	Email        string    `gorm:"unique" json:"email"`
-	PhoneNumber  string    `json:"phoneNumber"`
-	DiscountID   *uint      `json:"discountId" gorm:"default:1"`
-	PasswordHash string    `json:"password"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
-	Roles        []Role    `json:"roles" gorm:"many2many:user_roles; default:1"`
-	Addresses    []Address `gorm:"many2many:user_addresses;" json:"adresses"`
+	gorm.Model
+	Name     string `json:"name"`
+	LastName string `json:"lastName"`
+	Email    string `gorm:"unique" json:"email"`
+	Password string `json:"password"`
+	PhoneNumber  string        `json:"phoneNumber"`
+	Roles        []Role        `gorm:"many2many:user_roles"`
+	Transactions []Transaction `json:"transactions,omitempty"`
+	Addresses    []Address     `gorm:"many2many:user_addresses" json:"addresses,omitempty"`
+	Orders       []Order       `json:"orders,omitempty"`
+	Scores       []Score       `json:"scores,omitempty"`
+	Comments     []Comment     `json:"comments,omitempty"`
 }

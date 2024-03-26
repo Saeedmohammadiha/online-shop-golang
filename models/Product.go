@@ -4,15 +4,16 @@ import (
 	"time"
 )
 
-
 type Product struct {
-    ID          uint           `gorm:"primaryKey"`
-    Name        string
-    Price       float64
-    DiscountID  uint
-    Quantity    int
-    CreatedAt   time.Time
-    UpdatedAt   time.Time
-    Summary     string         `gorm:"type:text"`
-    Slug        string
+	ID         uint        `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	Name       string      `json:"name"`
+	Price      float64     `json:"price"`
+	Quantity   uint        `json:"quantity"`
+	CreatedAt  time.Time   `json:"createdAt"`
+	UpdatedAt  time.Time   `json:"updatedAt"`
+	Summery    string      `json:"summery"`
+	Slug       string      `json:"slug"`
+	OrderItems []OrderItem `json:"orderItems,omitempty"` 
+	Scores     []Score     `json:"scores,omitempty"`     
+	Comments   []Comment   `json:"comments,omitempty"`   
 }

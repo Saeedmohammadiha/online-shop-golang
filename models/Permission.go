@@ -1,7 +1,6 @@
 package models
 
 type Permission struct {
-    ID    uint   `gorm:"primaryKey"`
-    Title string
-    Roles []Role        `gorm:"many2many:permission_roles;"`
+	ID    uint   `gorm:"primary_key;AUTO_INCREMENT" json:"id"`
+	Title string `json:"title"`
 }

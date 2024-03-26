@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -6,7 +5,6 @@ import (
 	"github.com/OnlineShop/repository"
 	"github.com/OnlineShop/router"
 	"github.com/OnlineShop/services"
-	
 )
 
 func main() {
@@ -14,12 +12,15 @@ func main() {
 	db := databaseConfig.MysqlDatabaseConnection()
 
 	userRepo := repository.NewUserRepository(db)
+	roleRepo := repository.NewRoleRepository(db)
 
 	userService := services.NewUserService(userRepo)
+	roleService := services.NewRoleService(roleRepo)
 	router := router.NewRouter()
-	
+
 	router.Get("/users", userService.FindAll)
 	router.Post("/users", userService.Create)
+	router.Post("/roles", roleService.Create)
 	router.Get("/users/{id}", userService.FindById)
 	router.Put("/users/{id}", userService.Updata)
 	router.Delete("/users/{id}", userService.Delete)

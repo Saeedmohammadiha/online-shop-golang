@@ -1,12 +1,10 @@
 package dto
 
-type UserCreateRequest struct {
-	Name        string `json:"name,omitempty"`
+type CreateUserRequest struct {
+	Name        string `json:"name"`
 	LastName    string `json:"lastName,omitempty"`
-	PhoneNumber string `json:"phoneNumber,omitempty"`
-	Email       string `json:"email" binding:"required"`
-	DiscountID  uint   `json:"discountId,omitempty"`
-	Password    string `json:"password" binding:"required"`
-	Roles       []int  `json:"roles,omitempty"`
-	Addresses   []int  `json:"adresses,omitempty"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+	RoleIDs     []uint `json:"roleIds,omitempty"`
+	Password    string `json:"password"`
 }

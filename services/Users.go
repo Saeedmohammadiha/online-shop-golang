@@ -33,16 +33,18 @@ func NewUserService(userRepo *repository.UserRepository) *UserService {
 func (u *UserService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 	//get users
-	var users []models.User
-	result := u.UserRepo.Db.Find(&users)
-	if result.Error != nil {
-		fmt.Println("failed to get users ", result.Error)
+
+	users, err := u.UserRepo.FindAll()
+	if err != nil {
+		http.Error(w, "faild to ger users", http.StatusBadRequest)
+		return
 	}
 
 	//convert to json
 	jsonResponse, errMarshal := json.Marshal(users)
 	if errMarshal != nil {
-		fmt.Println("failed to parse json", errMarshal)
+		http.Error(w, "faild to parse json to serve", http.StatusBadRequest)
+		return
 	}
 
 	//set headers
@@ -56,10 +58,9 @@ func (u *UserService) FindAll(w http.ResponseWriter, r *http.Request) {
 func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
 	//get data from the request body and convert to json
-	var requestUser dto.UserCreateRequest
+	var requestUser dto.CreateUserRequest
 	err := json.NewDecoder(r.Body).Decode(&requestUser)
 	if err != nil {
-		//fmt.Println("fail to decode the body")
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
@@ -72,20 +73,38 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var roles []models.Role
+	if len(requestUser.RoleIDs) > 0 {
+		// Fetch roles from the database using role IDs
+		err := u.UserRepo.Db.Where("id IN ?", requestUser.RoleIDs).Find(&roles).Error
+		if err != nil {
+			http.Error(w, "there is no role with this id", http.StatusBadRequest)
+			return
+		}
+
+		// Check if all role IDs are valid
+		if len(roles) != len(requestUser.RoleIDs) {
+			http.Error(w, "invalid role ids provided", http.StatusBadRequest)
+			return
+		}
+	}
+
 	//map the inputs to the user
 	var newUser = models.User{
-		Name:         requestUser.Name,
-		LastName:     requestUser.LastName,
-		PhoneNumber:  requestUser.PhoneNumber,
-		Email:        requestUser.Email,
-		PasswordHash: requestUser.Password, //needs to hash first
-		DiscountID:   &requestUser.DiscountID,
+		Name:        requestUser.Name,
+		LastName:    requestUser.LastName,
+		PhoneNumber: requestUser.PhoneNumber,
+		Email:       requestUser.Email,
+		Password:    requestUser.Password, //needs to hash first
+	}
+	if len(roles) > 0 {
+		newUser.Roles = roles
 	}
 
 	//create the user in db
 	user, er := u.UserRepo.Create(&newUser)
 	if er != nil {
-		fmt.Println("faield to create user", er)
+		http.Error(w, er.Error(), http.StatusBadRequest)
 	}
 
 	//convert to json
@@ -113,17 +132,18 @@ func (u *UserService) FindById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//get the user from db
-	var user models.User
-	err = u.UserRepo.Db.First(&user, uId).Error
-	if err != nil {
+
+	user, errGetUser := u.UserRepo.FindById(uId)
+	if errGetUser != nil {
 		http.Error(w, "can't get the user", http.StatusBadRequest)
 		return
 	}
 
 	//convert the user to json
-	jsonResponse, errMarshal := json.Marshal(user)
+	jsonResponse, errMarshal := json.Marshal(&user)
 	if errMarshal != nil {
-		fmt.Println("failed to parse json")
+		http.Error(w, "faild to parse json to serve", http.StatusBadRequest)
+		return
 	}
 
 	//set response header
@@ -171,13 +191,18 @@ func (u *UserService) Updata(w http.ResponseWriter, r *http.Request) {
 
 	//map the inputs to the user
 	var updatedUser = models.User{
-		ID:           uint(uId),
-		Name:         requestUser.Name,
-		LastName:     requestUser.LastName,
-		PhoneNumber:  requestUser.PhoneNumber,
-		Email:        requestUser.Email,
-		PasswordHash: requestUser.Password, //needs to hash first
-		DiscountID:   &requestUser.DiscountID,
+		//ID:          uint(uId),
+		Name:        requestUser.Name,
+		LastName:    requestUser.LastName,
+		PhoneNumber: requestUser.PhoneNumber,
+		Email:       requestUser.Email,
+		//PasswordHash: requestUser.Password, //needs to hash first
+		//Discount:     models.Discount{ID: requestUser.DiscountID},
+		// Address: []models.Address{
+		// 	{
+		// 		ID: uint(requestUser.Addresses),
+		// 	},
+		// },
 	}
 
 	// set the new sata
@@ -207,14 +232,15 @@ func (u *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//does user exist
-	if err = u.UserRepo.Db.Where("id = ?", uId).First(&models.User{}).Error; err != nil {
+	user, err := u.UserRepo.FindById(uId)
+	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			http.Error(w, "there is no such user", http.StatusBadRequest)
 			return
 		}
 	}
 	//delete the user
-	err = u.UserRepo.Db.Delete(&models.User{}, uId).Error
+	err = u.UserRepo.Delete(int(user.ID))
 	if err != nil {
 		http.Error(w, "cant delete the user", http.StatusBadRequest)
 		return
@@ -225,5 +251,6 @@ func (u *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	//send the response
-	w.Write([]byte{})
+	json.NewEncoder(w).Encode(models.User{})
+
 }
