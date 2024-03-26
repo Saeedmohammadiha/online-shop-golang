@@ -37,7 +37,6 @@ func (*UserValidator) ValidateUpdateUser(r dto.UserUpdateRequest) error {
 		validation.Field(&r.Email, validation.Required.Error("you must privide the email"), is.Email.Error("the email is invalid")),
 		validation.Field(&r.PhoneNumber, validation.Length(11, 11).Error("phone number must be 11 character"), is.Digit.Error("phone number should be number")),
 		validation.Field(&r.Password, NewValidatePassword(r.Password)),
-		validation.Field(&r.DiscountID, is.Digit.Error("phone number should be number")),
 	)
 
 }
