@@ -9,6 +9,7 @@ import (
 	"github.com/OnlineShop/dto/user"
 	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
+	utils "github.com/OnlineShop/utils/hashPassword"
 	"github.com/OnlineShop/validation"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
@@ -89,13 +90,20 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	//hash the password
+	hashedPass, err := utils.NewPasswordHasher().HashPassword(requestUser.Password)
+	if err != nil {
+		http.Error(w, "encripting password faild", http.StatusBadRequest)
+		return
+	}
+
 	//map the inputs to the user
 	var newUser = models.User{
 		Name:        requestUser.Name,
 		LastName:    requestUser.LastName,
 		PhoneNumber: requestUser.PhoneNumber,
 		Email:       requestUser.Email,
-		Password:    requestUser.Password, //needs to hash first
+		Password:    hashedPass,
 	}
 	if len(roles) > 0 {
 		newUser.Roles = roles
@@ -165,7 +173,8 @@ func (u *UserService) Updata(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//does user exist
-	if err = u.UserRepo.Db.Where("id = ?", uId).First(&models.User{}).Error; err != nil {
+	_, errFInd := u.UserRepo.FindById(uId)
+	if errFInd != nil {
 		if err == gorm.ErrRecordNotFound {
 			http.Error(w, "there is no such user", http.StatusBadRequest)
 			return
@@ -189,36 +198,38 @@ func (u *UserService) Updata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//hash the password
+	var hashedPass = requestUser.Password
+	if requestUser.Password != "" {
+		hashedPass, err = utils.NewPasswordHasher().HashPassword(requestUser.Password)
+		if err != nil {
+			http.Error(w, "encripting password faild", http.StatusBadRequest)
+			return
+		}
+	}
+
 	//map the inputs to the user
 	var updatedUser = models.User{
-		//ID:          uint(uId),
 		Name:        requestUser.Name,
 		LastName:    requestUser.LastName,
 		PhoneNumber: requestUser.PhoneNumber,
 		Email:       requestUser.Email,
-		//PasswordHash: requestUser.Password, //needs to hash first
-		//Discount:     models.Discount{ID: requestUser.DiscountID},
-		// Address: []models.Address{
-		// 	{
-		// 		ID: uint(requestUser.Addresses),
-		// 	},
-		// },
+		Password:    hashedPass,
 	}
 
 	// set the new sata
-	dataSaved := u.UserRepo.Db.Save(&updatedUser)
-	if dataSaved.Error != nil {
-		fmt.Println("can't update the user", dataSaved.Error)
+	_, errUpdate := u.UserRepo.Update(&updatedUser)
+	if errUpdate != nil {
+		http.Error(w, "can't update the uesr", http.StatusBadRequest)
+		return
 	}
-
-	jsonResponse, _ := json.Marshal(updatedUser)
 
 	//set response header
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	//send the response
-	w.Write(jsonResponse)
+	json.NewEncoder(w).Encode(updatedUser)
 }
 
 func (u *UserService) Delete(w http.ResponseWriter, r *http.Request) {
