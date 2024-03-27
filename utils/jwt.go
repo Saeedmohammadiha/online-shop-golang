@@ -7,7 +7,19 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func NewAccessToken(userID int) (string, error) {
+type Token interface {
+	NewAccessToken(userID int) (string, error)
+	NewRefreshToken(userID int) (string, error)
+}
+
+type Jwt struct {
+}
+
+func NewAuth() Token {
+	return &Jwt{}
+}
+
+func (*Jwt) NewAccessToken(userID int) (string, error) {
 	var claims = jwt.MapClaims{
 		"userID":    userID,
 		"IssuedAt":  time.Now().Unix(),
@@ -23,7 +35,7 @@ func NewAccessToken(userID int) (string, error) {
 	return AccessToken, nil
 }
 
-func NewRefreshToken(userID int) (string, error) {
+func (*Jwt) NewRefreshToken(userID int) (string, error) {
 	var claims = jwt.MapClaims{
 		"userID":    userID,
 		"IssuedAt":  time.Now().Unix(),

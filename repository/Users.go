@@ -61,3 +61,11 @@ func (repo *UserRepository) FindById(userID int) (*models.User, error) {
 	return &user, nil
 
 }
+func (repo *UserRepository) FindByEmail(userEmail string) (*models.User, error) {
+	var user models.User
+	if err := repo.Db.Where("Email = ?", userEmail).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+
+}

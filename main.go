@@ -16,6 +16,7 @@ func main() {
 
 	userService := services.NewUserService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
+	authService := services.NewAuthService(*userRepo)
 	router := router.NewRouter()
 
 	router.Get("/users", userService.FindAll)
@@ -24,6 +25,8 @@ func main() {
 	router.Get("/users/{id}", userService.FindById)
 	router.Put("/users/{id}", userService.Updata)
 	router.Delete("/users/{id}", userService.Delete)
+
+	router.Post("/auth/login", authService.Login)
 	router.Serve(":5000")
 
 }

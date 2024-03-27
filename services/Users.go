@@ -9,7 +9,7 @@ import (
 	"github.com/OnlineShop/dto/user"
 	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
-	utils "github.com/OnlineShop/utils/hashPassword"
+	"github.com/OnlineShop/utils"
 	"github.com/OnlineShop/validation"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
