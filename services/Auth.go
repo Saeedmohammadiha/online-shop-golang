@@ -15,10 +15,10 @@ type AuthService interface {
 	Login(w http.ResponseWriter, r *http.Request)
 }
 type Auth struct {
-	u repository.UserRepository
+	u repository.UserRepo
 }
 
-func NewAuthService(r repository.UserRepository) AuthService {
+func NewAuthService(r repository.UserRepo) AuthService {
 	return &Auth{u: r}
 }
 

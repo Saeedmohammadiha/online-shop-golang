@@ -17,18 +17,18 @@ import (
 
 type UserServiceType interface {
 	Create(w http.ResponseWriter, r *http.Request)
-	Update(w http.ResponseWriter, r *http.Request)
+	Updata(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
 	FindAll(w http.ResponseWriter, r *http.Request)
 	FindById(w http.ResponseWriter, r *http.Request)
 }
 
 type UserService struct {
-	UserRepo repository.UserRepository
+	UserRepo repository.UserRepo
 }
 
-func NewUserService(userRepo *repository.UserRepository) *UserService {
-	return &UserService{UserRepo: *userRepo}
+func NewUserService(userRepo repository.UserRepo) UserServiceType {
+	return &UserService{UserRepo: userRepo}
 }
 
 func (u *UserService) FindAll(w http.ResponseWriter, r *http.Request) {
@@ -77,17 +77,24 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 	var roles []models.Role
 	if len(requestUser.RoleIDs) > 0 {
 		// Fetch roles from the database using role IDs
-		err := u.UserRepo.Db.Where("id IN ?", requestUser.RoleIDs).Find(&roles).Error
+		// err := u.UserRepo.Db.Where("id IN ?", requestUser.RoleIDs).Find(&roles).Error
+		// if err != nil {
+		// 	http.Error(w, "there is no role with this id", http.StatusBadRequest)
+		// 	return
+		// }
+		rolesOFDB, err := u.UserRepo.FindByRoleIdes(requestUser.RoleIDs)
 		if err != nil {
 			http.Error(w, "there is no role with this id", http.StatusBadRequest)
 			return
 		}
 
 		// Check if all role IDs are valid
-		if len(roles) != len(requestUser.RoleIDs) {
+		if len(*rolesOFDB) != len(requestUser.RoleIDs) {
 			http.Error(w, "invalid role ids provided", http.StatusBadRequest)
 			return
 		}
+
+		roles = *rolesOFDB
 	}
 
 	//hash the password

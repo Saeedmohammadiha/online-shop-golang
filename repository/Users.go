@@ -10,14 +10,16 @@ type UserRepo interface {
 	Update(user *models.User) (*models.User, error)
 	Delete(userID int) error
 	FindById(userID int) (*models.User, error)
-	FindAll() ([]*models.User, error)
+	FindAll() ([]models.User, error)
+	FindByEmail(userEmail string) (*models.User, error)
+	FindByRoleIdes(roleIds []uint) (*[]models.Role, error)
 }
 
 type UserRepository struct {
 	Db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) UserRepo {
 	return &UserRepository{Db: db}
 }
 
@@ -68,4 +70,15 @@ func (repo *UserRepository) FindByEmail(userEmail string) (*models.User, error) 
 	}
 	return &user, nil
 
+}
+
+func (repo *UserRepository) FindByRoleIdes(roleIds []uint) (*[]models.Role, error) {
+	var roles []models.Role
+
+	err := repo.Db.Where("id IN ?", roleIds).Find(&roles).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &roles, nil
 }

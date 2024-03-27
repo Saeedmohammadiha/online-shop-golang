@@ -15,8 +15,8 @@ func main() {
 	roleRepo := repository.NewRoleRepository(db)
 
 	userService := services.NewUserService(userRepo)
+	authService := services.NewAuthService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
-	authService := services.NewAuthService(*userRepo)
 	router := router.NewRouter()
 
 	router.Get("/users", userService.FindAll)

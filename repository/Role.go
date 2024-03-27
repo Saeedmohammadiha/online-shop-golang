@@ -10,14 +10,14 @@ type RoleRepo interface {
 	Update(Role *models.Role) (*models.Role, error)
 	Delete(RoleID int) error
 	FindById(RoleID int) (*models.Role, error)
-	FindAll() ([]*models.Role, error)
+	FindAll() ([]models.Role, error)
 }
 
 type RoleRepository struct {
 	Db *gorm.DB
 }
 
-func NewRoleRepository(db *gorm.DB) *RoleRepository {
+func NewRoleRepository(db *gorm.DB) RoleRepo {
 	return &RoleRepository{Db: db}
 }
 

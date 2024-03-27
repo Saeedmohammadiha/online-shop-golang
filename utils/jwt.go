@@ -3,7 +3,6 @@ package utils
 import (
 	"time"
 
-	utils "github.com/OnlineShop/utils/env"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -27,7 +26,7 @@ func (*Jwt) NewAccessToken(userID int) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	AccessToken, err := token.SignedString([]byte(utils.GetEnv("TOKEN_SECRET")))
+	AccessToken, err := token.SignedString([]byte(GetEnv("TOKEN_SECRET")))
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +42,7 @@ func (*Jwt) NewRefreshToken(userID int) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	RefreashToken, err := token.SignedString([]byte(utils.GetEnv("TOKEN_SECRET")))
+	RefreashToken, err := token.SignedString([]byte(GetEnv("TOKEN_SECRET")))
 	if err != nil {
 		return "", err
 	}

@@ -15,11 +15,11 @@ type RoleService interface {
 }
 
 type RS struct {
-	RoleRepo repository.RoleRepository
+	RoleRepo repository.RoleRepo
 }
 
-func NewRoleService(RoleRepo *repository.RoleRepository) *RS {
-	return &RS{RoleRepo: *RoleRepo}
+func NewRoleService(RoleRepo repository.RoleRepo) RoleService {
+	return &RS{RoleRepo: RoleRepo}
 }
 
 func (Role *RS) Create(w http.ResponseWriter, r *http.Request) {
