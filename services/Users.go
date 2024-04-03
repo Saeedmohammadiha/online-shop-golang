@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/OnlineShop/dto/user"
+	"github.com/OnlineShop/dto/User"
 	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
 	"github.com/OnlineShop/utils"
@@ -74,28 +74,23 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var roles []models.Role
-	if len(requestUser.RoleIDs) > 0 {
-		// Fetch roles from the database using role IDs
-		// err := u.UserRepo.Db.Where("id IN ?", requestUser.RoleIDs).Find(&roles).Error
-		// if err != nil {
-		// 	http.Error(w, "there is no role with this id", http.StatusBadRequest)
-		// 	return
-		// }
-		rolesOFDB, err := u.UserRepo.FindByRoleIdes(requestUser.RoleIDs)
-		if err != nil {
-			http.Error(w, "there is no role with this id", http.StatusBadRequest)
-			return
-		}
+	// var roles []models.Role
+	// if len(requestUser.RoleIDs) > 0 {
+	// 	// Fetch roles from the database using role IDs
+	// 	rolesOFDB, err := u.UserRepo.FindByRoleIdes(requestUser.RoleIDs)
+	// 	if err != nil {
+	// 		http.Error(w, "there is no role with this id", http.StatusBadRequest)
+	// 		return
+	// 	}
 
-		// Check if all role IDs are valid
-		if len(*rolesOFDB) != len(requestUser.RoleIDs) {
-			http.Error(w, "invalid role ids provided", http.StatusBadRequest)
-			return
-		}
+	// 	// Check if all role IDs are valid
+	// 	if len(*rolesOFDB) != len(requestUser.RoleIDs) {
+	// 		http.Error(w, "invalid role ids provided", http.StatusBadRequest)
+	// 		return
+	// 	}
 
-		roles = *rolesOFDB
-	}
+	// 	roles = *rolesOFDB
+	// }
 
 	//hash the password
 	hashedPass, err := utils.NewPasswordHasher().HashPassword(requestUser.Password)
@@ -112,9 +107,9 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		Email:       requestUser.Email,
 		Password:    hashedPass,
 	}
-	if len(roles) > 0 {
-		newUser.Roles = roles
-	}
+	// if len(roles) > 0 {
+	// 	newUser.Roles = roles
+	// }
 
 	//create the user in db
 	user, er := u.UserRepo.Create(&newUser)
