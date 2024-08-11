@@ -1,28 +1,30 @@
 package utils
 
 import (
-	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Token interface {
-	NewAccessToken(userID int) (string, error)
-	NewRefreshToken(userID int) (string, error)
+	NewAccessToken(userID int, roleID int) (string, error)
+	NewRefreshToken(userID int, roleID int) (string, error)
 }
 
-type Jwt struct {
+type JWTClaim struct {
+	UserID int `json:"userID"`
+	RoleID int `json:"roleID"`
+	jwt.RegisteredClaims
 }
+
+type Jwt struct{}
 
 func NewAuth() Token {
 	return &Jwt{}
 }
 
-func (*Jwt) NewAccessToken(userID int) (string, error) {
-	var claims = jwt.MapClaims{
-		"userID":    userID,
-		"IssuedAt":  time.Now().Unix(),
-		"ExpiresAt": time.Now().Add(time.Minute * 15).Unix(),
+func (*Jwt) NewAccessToken(userID int, roleID int) (string, error) {
+	var claims = &JWTClaim{
+		UserID: userID,
+		RoleID: roleID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -34,11 +36,10 @@ func (*Jwt) NewAccessToken(userID int) (string, error) {
 	return AccessToken, nil
 }
 
-func (*Jwt) NewRefreshToken(userID int) (string, error) {
-	var claims = jwt.MapClaims{
-		"userID":    userID,
-		"IssuedAt":  time.Now().Unix(),
-		"ExpiresAt": time.Now().Add(time.Hour * 24).Unix(),
+func (*Jwt) NewRefreshToken(userID int, roleID int) (string, error) {
+	var claims = &JWTClaim{
+		UserID: userID,
+		RoleID: roleID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

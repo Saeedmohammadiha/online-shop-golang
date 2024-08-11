@@ -32,12 +32,12 @@ func (Role *RS) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	per := models.Permission{
-		Title: "test",
-	}
+	// per := models.Permission{
+	// 	Title: "test",
+	// }
 	roo := models.Role{
 		Title:       newRole.Title,
-		Permissions: []models.Permission{per},
+		//Permissions: []models.Permission{per},
 	}
 	//create the user in db
 	role, er := Role.RoleRepo.Create(&roo)
