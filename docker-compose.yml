@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+    ports:
+      - "5000:5080"
+    volumes:
+    - .:/app  
+    command: CompileDaemon --build=main.go --command=./main
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: password
+      DB_NAME: onlineshop
+    depends_on:
+      - mysql     
+
+  mysql:
+    image: mysql:8.0.33-oracle
+    ports: 
+     - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: onlineshop
+    volumes:
+      - mysql-data:/var/lib/mysql   
+
+volumes:
+  mysql-data:  

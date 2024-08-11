@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -73,7 +74,6 @@ func (A *Auth) Login(w http.ResponseWriter, r *http.Request) {
 		RefreashToken: refreshToken,
 	}
 
-	
 	//convert to json
 	jsonResponse, errMarshal := json.Marshal(response)
 	if errMarshal != nil {
@@ -87,4 +87,32 @@ func (A *Auth) Login(w http.ResponseWriter, r *http.Request) {
 	//send response
 	w.Write(jsonResponse)
 
+}
+
+// func AuthMiddleware(next http.Handler) http.Handler{
+// 	return http.HandlerFunc(func (w http.ResponseWriter, r http.Request)  {
+
+// 	})
+// }
+// }
+
+type AuthenticatedUser struct {
+	UserID int
+	
+}
+
+func authMiddleware(next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Header.authurizattion
+		ctx := r.Context()
+		userID := 1234
+	
+
+		ctx = context.WithValue(r.Context(), "authContext", &AuthenticatedUser{
+			UserID: userID,
+	
+		})
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
