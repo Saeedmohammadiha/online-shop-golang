@@ -4,7 +4,7 @@ RUN go install github.com/githubnemo/CompileDaemon@latest
 
 WORKDIR /app
 
-COPY COPY go.mod go.sum ./
+COPY go.mod go.sum ./
 
 
 RUN go mod download
