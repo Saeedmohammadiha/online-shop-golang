@@ -32,7 +32,7 @@ func NewUserService(userRepo repository.UserRepo) UserServiceType {
 }
 
 func (u *UserService) FindAll(w http.ResponseWriter, r *http.Request) {
-fmt.Println("find all")
+
 	//get users
 
 	users, err := u.UserRepo.FindAll()

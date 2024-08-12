@@ -19,12 +19,14 @@ type PermissionRepository struct {
 	Db *gorm.DB
 }
 
-func NewPermissionRepository(db *gorm.DB) PermissionRepo {
+func NewPermissionRepo(db *gorm.DB) PermissionRepo {
 	return &PermissionRepository{Db: db}
 }
 
 func (repo *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {
-	if err := repo.Db.Create(&permission).Error; err != nil {
+	
+	//recieve a pointer and pass the pointer to gorm create function
+	if err := repo.Db.Create(permission).Error; err != nil {
 		return nil, err
 	}
 	return permission, nil

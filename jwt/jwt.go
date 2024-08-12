@@ -25,10 +25,10 @@ func New() Token {
 }
 
 func (*Jwt) GenerateAccessToken(userID int, roleIDs []models.Role) (string, error) {
-	roleIDs[0].ID
+	
 	var claims = &JWTClaim{
 		UserID: userID,
-		RoleID: roleID,
+		RoleID: int(roleIDs[0].ID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -43,7 +43,7 @@ func (*Jwt) GenerateAccessToken(userID int, roleIDs []models.Role) (string, erro
 func (*Jwt) GenerateRefreshToken(userID int,  roleIDs []models.Role) (string, error) {
 	var claims = &JWTClaim{
 		UserID: userID,
-		RoleID: roleID,
+		RoleID:  int(roleIDs[0].ID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

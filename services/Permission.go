@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	//	"fmt"
 	"net/http"
 	////	"strconv"
@@ -16,7 +17,7 @@ import (
 	// "gorm.io/gorm"
 )
 
-type PermissionServiceType interface {
+type IPermissionService interface {
 	Create(w http.ResponseWriter, r *http.Request)
 	Updata(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
@@ -28,15 +29,15 @@ type PermissionService struct {
 	PermissionRepo repository.PermissionRepo
 }
 
-func NewPermissionService(permissionRepo repository.PermissionRepo) PermissionServiceType {
+func NewPermissionService(permissionRepo repository.PermissionRepo) IPermissionService {
 	return &PermissionService{PermissionRepo: permissionRepo}
 }
 
-func (p *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
+func (service *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 	//get users
 
-	permissions, err := p.PermissionRepo.FindAll()
+	permissions, err := service.PermissionRepo.FindAll()
 	if err != nil {
 		http.Error(w, "faild to ger users", http.StatusBadRequest)
 		return
@@ -55,15 +56,27 @@ func (p *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 	//send response
 	w.Write(jsonResponse)
+
 }
 
-func (p *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
-	permission, err := p.PermissionRepo.Create(&models.Permission{
-		Title: "creatUser",
-	})
+func (service *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
+	recievedValue := &models.Permission{
+		Title: "updateUser",
+	}
+
+	permission, err := service.PermissionRepo.Create(recievedValue)
+
+fmt.Println("udpasd;fglkjhdslapfdsasdfasfdasfdas")
 	if err != nil {
 		http.Error(w, "errrororororor", http.StatusBadRequest)
+		return
+	}
+
+	//convert to json
+	jsonResponse, errMarshal := json.Marshal(permission)
+	if errMarshal != nil {
+		http.Error(w, "faild to parse json to serve", http.StatusBadRequest)
 		return
 	}
 
@@ -72,16 +85,18 @@ func (p *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(permission)
 
-}
-
-func (p *PermissionService) FindById(w http.ResponseWriter, r *http.Request) {
+	w.Write(jsonResponse)
 
 }
 
-func (p *PermissionService) Updata(w http.ResponseWriter, r *http.Request) {
+func (service *PermissionService) FindById(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (p *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
+func (service *PermissionService) Updata(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (service *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type Router interface {
+type IRouter interface {
 	Get(uri string, f func(w http.ResponseWriter, r *http.Request))
 	Post(uri string, f func(w http.ResponseWriter, r *http.Request))
 	Put(uri string, f func(w http.ResponseWriter, r *http.Request))
@@ -26,7 +26,7 @@ type MuxRouter struct {
 	dispatcher *mux.Router
 }
 
-func NewRouter() Router {
+func New() IRouter {
 	return &MuxRouter{apiRoute: api, dispatcher: muxDisptcher}
 }
 
