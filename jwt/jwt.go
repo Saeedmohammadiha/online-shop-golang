@@ -1,12 +1,15 @@
-package utils
+package JwtFactory
 
 import (
+	"os"
+
+	"github.com/OnlineShop/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Token interface {
-	NewAccessToken(userID int, roleID int) (string, error)
-	NewRefreshToken(userID int, roleID int) (string, error)
+	GenerateAccessToken(userID int, roleIDs []models.Role) (string, error)
+	GenerateRefreshToken(userID int, roleIDs []models.Role) (string, error)
 }
 
 type JWTClaim struct {
@@ -17,18 +20,19 @@ type JWTClaim struct {
 
 type Jwt struct{}
 
-func NewAuth() Token {
+func New() Token {
 	return &Jwt{}
 }
 
-func (*Jwt) NewAccessToken(userID int, roleID int) (string, error) {
+func (*Jwt) GenerateAccessToken(userID int, roleIDs []models.Role) (string, error) {
+	roleIDs[0].ID
 	var claims = &JWTClaim{
 		UserID: userID,
 		RoleID: roleID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	AccessToken, err := token.SignedString([]byte(GetEnv("TOKEN_SECRET")))
+	AccessToken, err := token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
 	if err != nil {
 		return "", err
 	}
@@ -36,14 +40,14 @@ func (*Jwt) NewAccessToken(userID int, roleID int) (string, error) {
 	return AccessToken, nil
 }
 
-func (*Jwt) NewRefreshToken(userID int, roleID int) (string, error) {
+func (*Jwt) GenerateRefreshToken(userID int,  roleIDs []models.Role) (string, error) {
 	var claims = &JWTClaim{
 		UserID: userID,
 		RoleID: roleID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	RefreashToken, err := token.SignedString([]byte(GetEnv("TOKEN_SECRET")))
+	RefreashToken, err := token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
 	if err != nil {
 		return "", err
 	}

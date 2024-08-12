@@ -2,12 +2,13 @@ package services
 
 import (
 	"encoding/json"
-//	"fmt"
+	//	"fmt"
 	"net/http"
-////	"strconv"
+	////	"strconv"
 
-//	"github.com/OnlineShop/dto/User"
-//	"github.com/OnlineShop/models"
+	//	"github.com/OnlineShop/dto/User"
+	//	"github.com/OnlineShop/models"
+	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
 	// "github.com/OnlineShop/utils"
 	// "github.com/OnlineShop/validation"
@@ -57,12 +58,24 @@ func (p *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
+	permission, err := p.PermissionRepo.Create(&models.Permission{
+		Title: "creatUser",
+	})
+
+	if err != nil {
+		http.Error(w, "errrororororor", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	json.NewEncoder(w).Encode(permission)
 
 }
 
 func (p *PermissionService) FindById(w http.ResponseWriter, r *http.Request) {
 
-	
 }
 
 func (p *PermissionService) Updata(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +84,4 @@ func (p *PermissionService) Updata(w http.ResponseWriter, r *http.Request) {
 
 func (p *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 
-
 }
-
-

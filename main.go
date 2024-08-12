@@ -13,14 +13,17 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
+	permissionRepo := repository.NewPermissionRepository(db)
 
 	userService := services.NewUserService(userRepo)
-	authService := services.NewAuthService(userRepo)
+	permissionService := services.NewPermissionService(permissionRepo)
+	authService := services.NewAuthService(&userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	router := router.NewRouter()
 
 	router.Get("/users", userService.FindAll)
 	router.Post("/users", userService.Create)
+	router.Post("/permissions", permissionService.Create)
 	router.Post("/roles", roleService.Create)
 	router.Get("/users/{id}", userService.FindById)
 	router.Put("/users/{id}", userService.Updata)

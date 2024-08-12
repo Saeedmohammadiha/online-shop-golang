@@ -93,7 +93,7 @@ func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
 	// }
 
 	//hash the password
-	hashedPass, err := utils.NewPasswordHasher().HashPassword(requestUser.Password)
+	hashedPass, err := utils.HashPassword(requestUser.Password)
 	if err != nil {
 		http.Error(w, "encripting password faild", http.StatusBadRequest)
 		return
@@ -203,7 +203,7 @@ func (u *UserService) Updata(w http.ResponseWriter, r *http.Request) {
 	//hash the password
 	var hashedPass = requestUser.Password
 	if requestUser.Password != "" {
-		hashedPass, err = utils.NewPasswordHasher().HashPassword(requestUser.Password)
+		hashedPass, err = utils.HashPassword(requestUser.Password)
 		if err != nil {
 			http.Error(w, "encripting password faild", http.StatusBadRequest)
 			return
