@@ -11,7 +11,7 @@ type User struct {
 	Email        string        `gorm:"unique" json:"email"`
 	Password     string        `json:"password"`
 	PhoneNumber  string        `json:"phoneNumber"`
-	RoleID       int           `json:"roleId"`
+	Roles        []Role        `gorm:"many2many:user_roles;"`
 	Transactions []Transaction `json:"transactions,omitempty"`
 	Addresses    []Address     `gorm:"many2many:user_addresses" json:"addresses,omitempty"`
 	Orders       []Order       `json:"orders,omitempty"`

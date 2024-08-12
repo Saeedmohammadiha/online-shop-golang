@@ -1,8 +1,8 @@
-package models
+ package models
 
-import "gorm.io/gorm"
+// import "gorm.io/gorm"
 
-type Resource struct {
-	gorm.Model
-	Title string `title:"string"`
-}
+// type Resource struct {
+// 	gorm.Model
+// 	Title string `title:"string"`
+// }
