@@ -1,6 +1,6 @@
 FROM golang:1.22.6-alpine
 
-RUN go install github.com/githubnemo/CompileDaemon@latest
+RUN go install github.com/air-verse/air@latest
 
 WORKDIR /app
 
@@ -13,6 +13,6 @@ COPY . .
 
 
 EXPOSE 5000
-CMD ["CompileDaemon", "--build=main.go", "--command=./main"]
+CMD ["air"]
 
 
