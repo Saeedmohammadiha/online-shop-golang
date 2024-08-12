@@ -2,6 +2,7 @@ package databaseConfig
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/OnlineShop/models"
 	"gorm.io/driver/mysql"
@@ -38,5 +39,5 @@ func MysqlDatabaseConnection() *gorm.DB {
 		&models.TransactionStatus{},
 		&models.Transaction{},
 	)
-	return &db
+	return db
 }

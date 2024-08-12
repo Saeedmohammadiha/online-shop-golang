@@ -1,7 +1,7 @@
 package services
 
 import (
-	"context"
+	
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -112,7 +112,7 @@ func (a *Auth) AuthMiddleware(next http.Handler, resourceId int) http.Handler {
 				return
 			}
 		}
-		ctx := context.WithValue(r.Context(), "claims", claims)
+		//ctx := context.WithValue(r.Context(), "claims", claims)
 		next.ServeHTTP(w, r)
 	})
 
@@ -122,7 +122,7 @@ func (a *Auth) GaurdMiddleware(next http.Handler, resourceId int) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		//check if the user has the access
-		permission, err := a.p.FindByRoleAndResource(claims.RoleID, resourceId)
+		permission, err := a.p.FindByRoleAndResource(1, resourceId)
 		if err != nil {
 			fmt.Println("Error querying permission:", err)
 
