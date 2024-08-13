@@ -2,13 +2,18 @@
 services:
   app:
     build: 
+      dockerfile: dockerfile
       context: .
     ports:
       - "5000:5000"
-    volumes:
-      - .:/app  
-      - air-config:/app/tmp
-    command: air
+  
+    command: ["/app/main.exe"]
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          target: /app  
+          
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -16,7 +21,8 @@ services:
       DB_PASSWORD: password
       DB_NAME: onlineshop
     depends_on:
-      - mysql     
+      mysql:
+        condition: service_healthy    
 
   mysql:
     image: mysql:8.0.33-oracle
@@ -26,8 +32,13 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: onlineshop
     volumes:
-      - mysql-data:/var/lib/mysql   
+      - mysql-data:/var/lib/mysql  
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s 
 
 volumes:
   mysql-data:  
-  air-config:
