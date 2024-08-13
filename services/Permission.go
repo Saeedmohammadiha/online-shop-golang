@@ -56,6 +56,7 @@ func (service *PermissionService) FindAll(w http.ResponseWriter, r *http.Request
 func (service *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: need to sanitize the input
+	// TODO: check if already exists
 	// decode body to json
 	var receivedPermission dto.PermissionCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&receivedPermission); err != nil {
@@ -76,21 +77,18 @@ func (service *PermissionService) Create(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	//convert to json
+	//convert to json and response 
 	responseValue := dto.PermissionCreateResponse{
 		ID:    savedPermission.ID,
 		Title: savedPermission.Title,
 	}
-	jsonResponse, err := json.Marshal(&responseValue)
-	if err != nil {
-		http.Error(w, "failed to parse json to serve", http.StatusBadRequest)
-		return
-	}
 
-	// response with the new imported permission
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
+
+	if err := json.NewEncoder(w).Encode(responseValue); err != nil {
+		http.Error(w, "failed to parse json", http.StatusInternalServerError)
+	}
 
 }
 
