@@ -24,8 +24,8 @@ func NewPermissionRepo(db *gorm.DB) PermissionRepo {
 }
 
 func (repo *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {
-	
-	//recieve a pointer and pass the pointer to gorm create function
+
+	//receive a pointer and pass the pointer to gorm create function
 	if err := repo.Db.Create(permission).Error; err != nil {
 		return nil, err
 	}
