@@ -10,18 +10,19 @@ import (
 func main() {
 
 	db := databaseConfig.MysqlDatabaseConnection()
+	router := router.New()
+
+	permissionRepo := repository.NewPermissionRepo(db)
+	permissionService := services.NewPermissionService(permissionRepo)
+	router.Post("/permissions", permissionService.Create)
 
 	userRepo := repository.NewUserRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
-	permissionRepo := repository.NewPermissionRepo(db)
 
-	permissionService := services.NewPermissionService(permissionRepo)
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(&userRepo)
 	roleService := services.NewRoleService(roleRepo)
-	router := router.New()
 
-	router.Post("/permissions", permissionService.Create)
 	router.Get("/users", userService.FindAll)
 	router.Post("/users", userService.Create)
 	router.Post("/roles", roleService.Create)
