@@ -3,6 +3,7 @@ package initDb
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/OnlineShop/models"
 	"gorm.io/driver/mysql"
@@ -25,6 +26,7 @@ func MysqlDatabaseConnection() *gorm.DB {
 	sqlDB, err := db.DB()
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
 
 
 	if err != nil {
