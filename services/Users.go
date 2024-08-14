@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	dto "github.com/OnlineShop/dto/User"
+	dto "github.com/OnlineShop/dto/user"
 	"github.com/OnlineShop/models"
 	"github.com/OnlineShop/repository"
 	"github.com/OnlineShop/utils"

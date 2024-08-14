@@ -11,7 +11,6 @@ import (
 
 func MysqlDatabaseConnection() *gorm.DB {
 	// TODO: add retry logic
-	// TODO: reuse database connections for multiple operations within the same context or request. Avoid creating new connections unnecessarily.
 
 	dsn := getDbConfig()
 
