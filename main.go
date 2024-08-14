@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	db := databaseConfig.MysqlDatabaseConnection()
+	db := initDb.MysqlDatabaseConnection()
 	router := router.New()
 
 	permissionRepo := repository.NewPermissionRepo(db)
