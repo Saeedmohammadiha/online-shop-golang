@@ -12,7 +12,7 @@ func main() {
 
 	Log := logger.New()
 	defer Log.Sync()
-	db := initDb.MysqlDatabaseConnection()
+	db := initDb.MysqlDatabaseConnection(Log)
 	RepositoryFactory := repository.NewRepositoryFactory(db)
 
 	// register routes

@@ -5,35 +5,42 @@ import (
 	"os"
 	"time"
 
+	"github.com/OnlineShop/src/logger"
 	"github.com/OnlineShop/src/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func MysqlDatabaseConnection() *gorm.DB {
+func MysqlDatabaseConnection(log logger.Ilogger) *gorm.DB {
 	// TODO: add retry logic
 
 	dsn := getDbConfig()
+	log.Info("got the dsn", dsn)
 
 	// The returned DB is safe for concurrent use by multiple goroutines and maintains its own pool of idle connections.
 	// Thus, the Open function should be called just once. It is rarely necessary to close a DB.
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Println("create connection to database failed")
-		// TODO: add panic
+		log.Fatal("could not connect to database", "db message:", err.Error())
 	}
 
+	log.Info("opened conection to datebase")
 	sqlDB, err := db.DB()
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-	sqlDB.SetConnMaxLifetime(time.Hour)
-
 
 	if err != nil {
-		fmt.Println("failed to set config on db")
-		// TODO: add panic
+		log.Fatal("could not set the configs to sqldb", "db message:", err.Error())
 
 	} else {
+
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(100)
+		sqlDB.SetConnMaxLifetime(time.Hour)
+		log.Info("the configuration is set to the database connection",
+			"MaxIdleConns", 10,
+			"MaxOpenConns", 100,
+			"ConnMaxLifetime", time.Hour,
+		)
+
 		db.AutoMigrate(&models.User{},
 			&models.Product{},
 			&models.Order{},
@@ -48,6 +55,8 @@ func MysqlDatabaseConnection() *gorm.DB {
 			&models.TransactionStatus{},
 			&models.Transaction{},
 		)
+
+		log.Info("database migration is done")
 	}
 	return db
 }
