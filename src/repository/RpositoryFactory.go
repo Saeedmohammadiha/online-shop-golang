@@ -1,14 +1,18 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"github.com/OnlineShop/src/logger"
+	"gorm.io/gorm"
+)
 
 type RepositoryFactory struct {
 	PermissionRepository IPermissionRepository
 }
 
-func NewRepositoryFactory(db *gorm.DB) *RepositoryFactory {
+func NewRepositoryFactory(db *gorm.DB, log logger.Ilogger) *RepositoryFactory {
+	log.Info("repository factory is created")
 	return &RepositoryFactory{
-		PermissionRepository: NewPermissionRepo(db),
+		PermissionRepository: NewPermissionRepository(db, log),
 	}
 
 }
