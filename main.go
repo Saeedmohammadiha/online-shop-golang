@@ -2,35 +2,39 @@ package main
 
 import (
 	"github.com/OnlineShop/database"
+	v1 "github.com/OnlineShop/http/v1"
 	"github.com/OnlineShop/repository"
 	"github.com/OnlineShop/router"
-	"github.com/OnlineShop/services"
 )
 
 func main() {
 
 	db := initDb.MysqlDatabaseConnection()
-	router := router.New()
 
-	permissionRepo := repository.NewPermissionRepo(db)
-	permissionService := services.NewPermissionService(permissionRepo)
-	router.Post("/permissions", permissionService.Create)
+	RepositoryFactory := repository.NewRepositoryFactory(db)
 
-	userRepo := repository.NewUserRepository(db)
-	roleRepo := repository.NewRoleRepository(db)
+	// register routes
+	newRouter := router.New()
+	v1.RegisterRoutes(newRouter, RepositoryFactory)
 
-	userService := services.NewUserService(userRepo)
-	authService := services.NewAuthService(&userRepo)
-	roleService := services.NewRoleService(roleRepo)
+	//router.RegisterPermissionRoutes(appRouter, permissionService)
 
-	router.Get("/users", userService.FindAll)
-	router.Post("/users", userService.Create)
-	router.Post("/roles", roleService.Create)
-	router.Get("/users/{id}", userService.FindById)
-	router.Put("/users/{id}", userService.Updata)
-	router.Delete("/users/{id}", userService.Delete)
+	// TODO: needs refactor
+	// userRepo := repository.NewUserRepository(db)
+	// roleRepo := repository.NewRoleRepository(db)
 
-	router.Post("/auth/login", authService.Login)
-	router.Serve(":5000")
+	// userService := services.NewUserService(userRepo)
+	// authService := services.NewAuthService(&userRepo)
+	// roleService := services.NewRoleService(roleRepo)
+
+	// appRouter.Get("/users", userService.FindAll)
+	// appRouter.Post("/users", userService.Create)
+	// appRouter.Post("/roles", roleService.Create)
+	// appRouter.Get("/users/{id}", userService.FindById)
+	// appRouter.Put("/users/{id}", userService.Updata)
+	// appRouter.Delete("/users/{id}", userService.Delete)
+
+	// appRouter.Post("/auth/login", authService.Login)
+	newRouter.Serve(":5000")
 
 }
