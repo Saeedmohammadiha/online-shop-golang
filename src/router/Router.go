@@ -3,13 +3,13 @@ package router
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/OnlineShop/src/logger"
 	"github.com/gorilla/mux"
 )
 
@@ -21,57 +21,65 @@ type IRouter interface {
 
 type MuxRouter struct {
 	Router *mux.Router
+	log    logger.Ilogger
 }
 
-func New() IRouter {
+func New(log logger.Ilogger) IRouter {
+	log.Info("router is created")
 	return &MuxRouter{
 		Router: mux.NewRouter(),
+		log:    log,
 	}
 }
 
 func (r *MuxRouter) RegisterRoute(method string, url string, f func(w http.ResponseWriter, r *http.Request)) {
-    r.Router.HandleFunc(url, f).Methods(method)
-
-    // Debugging: Print out the registered routes
-    r.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
-        t, _ := route.GetPathTemplate()
-        fmt.Println("Registered route:", t)
-        return nil
-    })
+	r.Router.HandleFunc(url, f).Methods(method)
+	r.log.Info("a route registered",
+		"method", method,
+		"url", url,
+	)
+	// Debugging: Print out the registered routes
+	r.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		t, _ := route.GetPathTemplate()
+		r.log.Debug("Registered route:", t)
+		return nil
+	})
 }
 
 func (r *MuxRouter) CreateSubRouter(prefix string) IRouter {
-    subRouter := r.Router.PathPrefix(prefix).Subrouter()
-    return &MuxRouter{Router: subRouter}
+	r.log.Info("a subRouter is created", prefix)
+	subRouter := r.Router.PathPrefix(prefix).Subrouter()
+	return &MuxRouter{Router: subRouter}
 }
 
-func (router *MuxRouter) Serve(port string) {
+func (r *MuxRouter) Serve(port string) {
 	srv := &http.Server{
 		Addr:    port,
-		Handler: router.Router,
+		Handler: r.Router,
 	}
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not listen on %s: %v\n", port, err)
+			r.log.Fatalf("Could not listen on %s: %v\n", port, err)
 		}
 	}()
 
 	fmt.Printf("Server is listening on port %s\n", port)
+	r.log.Infof("Server is listening on port %s\n", port)
 
 	// Graceful shutdown logic
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
 	<-stop
-	fmt.Println("Shutting down the server...")
+	r.log.Info("Shutting down the server...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+		r.log.Fatalf("Server forced to shutdown: %v", err)
 	}
 
-	fmt.Println("Server exiting")
+	r.log.Info("Server exiting")
 }
