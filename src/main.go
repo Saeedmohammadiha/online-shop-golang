@@ -3,14 +3,16 @@ package main
 import (
 	initDb "github.com/OnlineShop/src/database"
 	v1 "github.com/OnlineShop/src/http/v1"
+	"github.com/OnlineShop/src/logger"
 	"github.com/OnlineShop/src/repository"
 	"github.com/OnlineShop/src/router"
 )
 
 func main() {
 
+	Log := logger.New()
+	defer Log.Sync()
 	db := initDb.MysqlDatabaseConnection()
-
 	RepositoryFactory := repository.NewRepositoryFactory(db)
 
 	// register routes
