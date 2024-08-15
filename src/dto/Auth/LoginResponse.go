@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/OnlineShop/models"
+import "github.com/OnlineShop/src/models"
 
 type LoginResponse struct {
 	User          models.User

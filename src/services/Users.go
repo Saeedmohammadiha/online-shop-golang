@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	dto "github.com/OnlineShop/dto/user"
-	"github.com/OnlineShop/models"
-	"github.com/OnlineShop/repository"
-	"github.com/OnlineShop/utils"
-	"github.com/OnlineShop/validation"
+	dto "github.com/OnlineShop/src/dto/user"
+	"github.com/OnlineShop/src/models"
+	"github.com/OnlineShop/src/repository"
+	"github.com/OnlineShop/src/utils"
+	"github.com/OnlineShop/src/validation"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )

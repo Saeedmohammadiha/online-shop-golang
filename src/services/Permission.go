@@ -6,10 +6,10 @@ import (
 
 	"net/http"
 
-	dto "github.com/OnlineShop/dto/Permission"
-	"github.com/OnlineShop/models"
-	"github.com/OnlineShop/repository"
-	"github.com/OnlineShop/validation"
+	dto "github.com/OnlineShop/src/dto/Permission"
+	"github.com/OnlineShop/src/models"
+	"github.com/OnlineShop/src/repository"
+	"github.com/OnlineShop/src/validation"
 )
 
 type IPermissionService interface {

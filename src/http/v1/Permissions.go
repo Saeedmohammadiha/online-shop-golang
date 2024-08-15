@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/OnlineShop/router"
-	"github.com/OnlineShop/services"
+	"github.com/OnlineShop/src/router"
+	"github.com/OnlineShop/src/services"
 )
 
 func RegisterPermissionRoutes(r router.IRouter, permissionService services.IPermissionService) {

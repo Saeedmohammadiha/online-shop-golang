@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	dto "github.com/OnlineShop/dto/Role"
-	"github.com/OnlineShop/models"
-	"github.com/OnlineShop/repository"
+	dto "github.com/OnlineShop/src/dto/Role"
+	"github.com/OnlineShop/src/models"
+	"github.com/OnlineShop/src/repository"
 )
 
 type RoleService interface {

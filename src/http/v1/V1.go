@@ -1,9 +1,9 @@
 package v1
 
 import (
-	"github.com/OnlineShop/repository"
-	"github.com/OnlineShop/router"
-	"github.com/OnlineShop/services"
+	"github.com/OnlineShop/src/repository"
+	"github.com/OnlineShop/src/router"
+	"github.com/OnlineShop/src/services"
 )
 
 func RegisterRoutes(r router.IRouter, RepositoryFactory *repository.RepositoryFactory) {

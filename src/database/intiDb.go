@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/OnlineShop/models"
+	"github.com/OnlineShop/src/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

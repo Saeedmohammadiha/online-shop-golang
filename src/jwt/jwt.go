@@ -3,7 +3,7 @@ package JwtFactory
 import (
 	"os"
 
-	"github.com/OnlineShop/models"
+	"github.com/OnlineShop/src/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 

@@ -1,7 +1,7 @@
 package validation
 
 import (
-	dto "github.com/OnlineShop/dto/Permission"
+	dto "github.com/OnlineShop/src/dto/Permission"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
 

@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/OnlineShop/models"
+	"github.com/OnlineShop/src/models"
 	"gorm.io/gorm"
 )
 

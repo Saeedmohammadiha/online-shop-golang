@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/OnlineShop/database"
-	v1 "github.com/OnlineShop/http/v1"
-	"github.com/OnlineShop/repository"
-	"github.com/OnlineShop/router"
+	initDb "github.com/OnlineShop/src/database"
+	v1 "github.com/OnlineShop/src/http/v1"
+	"github.com/OnlineShop/src/repository"
+	"github.com/OnlineShop/src/router"
 )
 
 func main() {

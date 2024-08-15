@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 
-	dto "github.com/OnlineShop/dto/Auth"
-	JwtFactory "github.com/OnlineShop/jwt"
-	"github.com/OnlineShop/repository"
-	"github.com/OnlineShop/utils"
-	"github.com/OnlineShop/validation"
+	dto "github.com/OnlineShop/src/dto/Auth"
+	JwtFactory "github.com/OnlineShop/src/jwt"
+	"github.com/OnlineShop/src/repository"
+	"github.com/OnlineShop/src/utils"
+	"github.com/OnlineShop/src/validation"
 )
 
 type AuthService interface {
