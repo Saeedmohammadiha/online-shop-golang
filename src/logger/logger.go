@@ -24,7 +24,7 @@ func New() Ilogger {
 	initiatedLogger, err := zap.NewProduction()
 
 	if err != nil {
-		slog.Error("logger app could not be initiate", err)
+		slog.Error("logger app could not be initiate", "initialZapError:", err.Error())
 	}
 
 	sugar := initiatedLogger.Sugar()
