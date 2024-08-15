@@ -7,14 +7,10 @@ RUN go mod download
 
 COPY . .
 
-# Build the Go application
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/main.exe .
+# Install Delve for debugging
+RUN apk add git && \
+    go install github.com/go-delve/delve/cmd/dlv@latest
 
-# Set correct permissions for the executable
-RUN chmod +x /app/main.exe
+EXPOSE 5000 40000
 
-
-
-EXPOSE 5000
-
-CMD [ "/app/main.exe"]
+CMD ["dlv", "debug", "--headless", "--listen=:40000", "--api-version=2", "--accept-multiclient", "--log", "/app/main.go"]
