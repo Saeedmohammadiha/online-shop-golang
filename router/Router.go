@@ -14,46 +14,35 @@ import (
 )
 
 type IRouter interface {
-	Get(uri string, f func(w http.ResponseWriter, r *http.Request))
-	Post(uri string, f func(w http.ResponseWriter, r *http.Request))
-	Put(uri string, f func(w http.ResponseWriter, r *http.Request))
-	Delete(uri string, f func(w http.ResponseWriter, r *http.Request))
-	AddPrefix(prefix string) IRouter
+	RegisterRoute(method string, url string, f func(w http.ResponseWriter, r *http.Request))
+	CreateSubRouter(prefix string) IRouter
 	Serve(port string)
 }
-
-var (
-	muxDisptcher = mux.NewRouter()
-)
 
 type MuxRouter struct {
 	Router *mux.Router
 }
 
-func New(apiVersion string) IRouter {
-	muxDisptcher.PathPrefix(fmt.Sprintf("/%s/api", apiVersion)).Subrouter()
-	return &MuxRouter{Router: muxDisptcher}
+func New() IRouter {
+	return &MuxRouter{
+		Router: mux.NewRouter(),
+	}
 }
 
-func (r *MuxRouter) AddPrefix(prefix string) IRouter {
-	subRouter := r.Router.PathPrefix(prefix).Subrouter()
-	return &MuxRouter{Router: subRouter}
+func (r *MuxRouter) RegisterRoute(method string, url string, f func(w http.ResponseWriter, r *http.Request)) {
+    r.Router.HandleFunc(url, f).Methods(method)
+
+    // Debugging: Print out the registered routes
+    r.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+        t, _ := route.GetPathTemplate()
+        fmt.Println("Registered route:", t)
+        return nil
+    })
 }
 
-func (router *MuxRouter) Get(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	router.Router.HandleFunc(uri, f).Methods("GET")
-}
-
-func (router *MuxRouter) Post(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	router.Router.HandleFunc(uri, f).Methods("POST")
-}
-
-func (router *MuxRouter) Put(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	router.Router.HandleFunc(uri, f).Methods("PUT")
-}
-
-func (router *MuxRouter) Delete(uri string, f func(w http.ResponseWriter, r *http.Request)) {
-	router.Router.HandleFunc(uri, f).Methods("DELETE")
+func (r *MuxRouter) CreateSubRouter(prefix string) IRouter {
+    subRouter := r.Router.PathPrefix(prefix).Subrouter()
+    return &MuxRouter{Router: subRouter}
 }
 
 func (router *MuxRouter) Serve(port string) {
