@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type PermissionRepo interface {
+type IPermissionRepository interface {
 	Create(permission *models.Permission) (*models.Permission, error)
 	Update(permission *models.Permission) (*models.Permission, error)
 	Delete(permissionID int) error
@@ -19,7 +19,7 @@ type PermissionRepository struct {
 	Db *gorm.DB
 }
 
-func NewPermissionRepo(db *gorm.DB) PermissionRepo {
+func NewPermissionRepo(db *gorm.DB) IPermissionRepository {
 	return &PermissionRepository{Db: db}
 }
 

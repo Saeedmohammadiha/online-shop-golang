@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"net/http"
 
@@ -20,10 +21,10 @@ type IPermissionService interface {
 }
 
 type PermissionService struct {
-	PermissionRepo repository.PermissionRepo
+	PermissionRepo repository.IPermissionRepository
 }
 
-func NewPermissionService(permissionRepo repository.PermissionRepo) IPermissionService {
+func NewPermissionService(permissionRepo repository.IPermissionRepository) IPermissionService {
 	return &PermissionService{PermissionRepo: permissionRepo}
 }
 
@@ -54,7 +55,7 @@ func (service *PermissionService) FindAll(w http.ResponseWriter, r *http.Request
 }
 
 func (service *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
-
+fmt.Println("aklsjdf;a")
 	// TODO: need to sanitize the input
 	// TODO: check if already exists
 	// decode body to json
