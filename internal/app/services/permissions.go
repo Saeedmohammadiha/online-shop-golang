@@ -2,10 +2,12 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"net/http"
 
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
+	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/pkg/logger"
 
 	"github.com/OnlineShop/internal/app/models"
@@ -83,15 +85,29 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// this is the next step
 	ctx := r.Context()
-	rawBody := ctx.Value("requestBody")
-	requestBody, ok := rawBody.(*dto.PermissionCreateRequest)
-	if !ok {
-		http.Error(w, "Failed to retrieve sanitized data", http.StatusInternalServerError)
+	rawBody := ctx.Value(middlewares.KEYCON)
+
+	jsonRequestBody, err := json.Marshal(rawBody)
+	if err != nil {
+		fmt.Println("Error marshaling to JSON:", err)
 		return
 	}
+	var requestBody dto.PermissionCreateRequest
+
+	errss := json.Unmarshal([]byte(jsonRequestBody), &requestBody)
+	if errss != nil {
+		fmt.Println("Error unmarshaling JSON:", err)
+		return
+	}
+	// requestBody, ok := rawBody.(*dto.PermissionCreateRequest)
+	// if !ok {
+	// 	fmt.Println("counting  ", ok)
+	// 	http.Error(w, "Failed to retrieve sanitized data", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	// validate the permission
-	if err := validation.NewPermissionValidation().ValidateCreatePermission(requestBody); err != nil {
+	if err := validation.NewPermissionValidation().ValidateCreatePermission(&requestBody); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
