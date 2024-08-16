@@ -4,6 +4,7 @@ import (
 	initDb "github.com/OnlineShop/internal/app/database"
 	v1 "github.com/OnlineShop/internal/app/http/v1"
 	"github.com/OnlineShop/internal/app/logger"
+	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/router"
 )
@@ -12,7 +13,11 @@ func main() {
 
 	Log := logger.New()
 	defer Log.Sync()
+	
 	appRouter := router.New(Log)
+	appRouter.Use(middlewares.SanitizeURLParamsMiddleware)
+	appRouter.Use(middlewares.SanitizeBodyMiddleware)
+
 	db := initDb.MysqlDatabaseConnection(Log)
 	RepositoryFactory := repositories.NewRepositoryFactory(db, Log)
 
