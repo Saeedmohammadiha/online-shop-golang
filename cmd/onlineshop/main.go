@@ -13,10 +13,11 @@ func main() {
 
 	Log := logger.New()
 	defer Log.Sync()
-	
+
 	appRouter := router.New(Log)
-	appRouter.Use(middlewares.SanitizeURLParamsMiddleware)
-	appRouter.Use(middlewares.SanitizeBodyMiddleware)
+	middles := middlewares.New(Log)
+	appRouter.Use(middles.SanitizeURLParamsMiddleware)
+	appRouter.Use(middles.SanitizeBodyMiddleware)
 
 	db := initDb.MysqlDatabaseConnection(Log)
 	RepositoryFactory := repositories.NewRepositoryFactory(db, Log)
