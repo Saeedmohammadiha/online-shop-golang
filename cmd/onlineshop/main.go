@@ -10,18 +10,20 @@ import (
 	"github.com/OnlineShop/internal/app/router"
 )
 
-func main() {
 
+
+func main() {
+	
 	Log := logger.New()
 	defer Log.Sync()
+
+	db := initDb.MysqlDatabaseConnection(Log)
+	RepositoryFactory := repositories.NewRepositoryFactory(db, Log)
 
 	appRouter := router.New(Log)
 	middles := middlewares.New(Log)
 	appRouter.Use(middles.SanitizeURLParamsMiddleware)
 	appRouter.Use(middles.SanitizeBodyMiddleware)
-
-	db := initDb.MysqlDatabaseConnection(Log)
-	RepositoryFactory := repositories.NewRepositoryFactory(db, Log)
 
 	// register routes
 	v1.RegisterRoutes(appRouter, RepositoryFactory, Log)

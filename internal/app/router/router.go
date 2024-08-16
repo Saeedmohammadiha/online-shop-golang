@@ -48,12 +48,13 @@ func (r *MuxRouter) RegisterRoute(method string, url string, f func(w http.Respo
 }
 
 func (r *MuxRouter) CreateSubRouter(prefix string) IRouter {
-	r.log.Info("a subRouter is created", prefix)
+	 r.log.Info("a subRouter is created", "rout:", prefix)
 	subRouter := r.Router.PathPrefix(prefix).Subrouter()
-	return &MuxRouter{Router: subRouter}
+	return &MuxRouter{Router: subRouter, log: r.log}
 }
 
 func (r *MuxRouter) Use(middleware func(http.Handler) http.Handler) {
+	r.log.Info("added a middleware to router", "middleware", middleware)
 	r.Router.Use(middleware)
 }
 
