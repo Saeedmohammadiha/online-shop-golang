@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
-	"github.com/OnlineShop/internal/app/logger"
+	"github.com/OnlineShop/internal/pkg/logger"
+
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
+	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
 )
 
@@ -69,27 +71,33 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: need to sanitize the input
+	// TODO: get the data from context
+	// TODO: clear the json decoding
 	// TODO: check if already exists
-	// TODO: decode the request in another package 
-	// TODO: validation and sanatize should be in another package 
-	// TODO: encode to json should be a helper function  
-	// TODO: sending responses should be a helper function   
-	// decode body to json
-	var receivedPermission dto.PermissionCreateRequest
-	if err := json.NewDecoder(r.Body).Decode(&receivedPermission); err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
+	// TODO: add validation as injected dependence
+	// TODO: make a helper function to send reposes to users
+
+	// TODO: use go routines to set the data in db
+
+	//TODO: add a middleware for authenticated routes and implement it in the router to use it
+
+	// this is the next step
+	ctx := r.Context()
+	rawBody := ctx.Value("requestBody")
+	requestBody, ok := rawBody.(*dto.PermissionCreateRequest)
+	if !ok {
+		http.Error(w, "Failed to retrieve sanitized data", http.StatusInternalServerError)
 		return
 	}
 
 	// validate the permission
-	if err := validation.NewPermissionValidation().ValidateCreatePermission(&receivedPermission); err != nil {
+	if err := validation.NewPermissionValidation().ValidateCreatePermission(requestBody); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// add the new entry to db
-	savedPermission := models.Permission{Title: receivedPermission.Title}
+	savedPermission := models.Permission{Title: requestBody.Title}
 	if _, err := s.PermissionRepository.Create(&savedPermission); err != nil {
 		http.Error(w, "Oops! Something went wrong. please try again later", http.StatusInternalServerError)
 		return
@@ -101,12 +109,7 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 		Title: savedPermission.Title,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	if err := json.NewEncoder(w).Encode(responseValue); err != nil {
-		http.Error(w, "failed to parse json", http.StatusInternalServerError)
-	}
+	utils.SendJsonResponse(w, &responseValue, s.log)
 
 }
 
