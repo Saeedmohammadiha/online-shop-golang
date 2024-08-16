@@ -13,4 +13,4 @@ RUN apk add git && \
 
 EXPOSE 5000 40000
 
-CMD ["dlv", "debug", "--headless", "--listen=:40000", "--api-version=2", "--accept-multiclient", "--log", "/app/main.go"]
+CMD ["dlv", "debug", "--headless", "--listen=:40000", "--api-version=2", "--accept-multiclient", "--log", "/app/cmd/onlineshop/main.go"]
