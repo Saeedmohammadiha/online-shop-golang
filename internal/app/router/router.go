@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/OnlineShop/internal/app/logger"
+	"github.com/OnlineShop/internal/pkg/logger"
 	"github.com/gorilla/mux"
 )
 

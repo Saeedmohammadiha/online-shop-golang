@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	"github.com/OnlineShop/internal/app/logger"
+	"github.com/OnlineShop/internal/pkg/logger"
 )
 
 type Imiddlewares interface {

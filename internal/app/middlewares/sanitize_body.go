@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/OnlineShop/internal/app/logger"
+	"github.com/OnlineShop/internal/pkg/logger"
 )
 
 // SanitizeMiddleware sanitizes incoming JSON requests
