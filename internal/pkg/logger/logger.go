@@ -2,8 +2,10 @@ package logger
 
 import (
 	"log/slog"
+	"os"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 type Ilogger interface {
@@ -21,12 +23,31 @@ type Ilogger interface {
 }
 
 type Logger struct {
-	Sugar *zap.SugaredLogger
+	Sugar   *zap.SugaredLogger
+	logFile *os.File
 }
 
 func New() Ilogger {
+	logFile, err := os.Create("logfile.log")
+	if err != nil {
+		panic(err)
+	}
 
-	initiatedLogger, err := zap.NewProduction()
+	fileCore := zapcore.NewCore(
+		zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig()), // or NewConsoleEncoder
+		zapcore.AddSync(logFile),
+		zap.InfoLevel, // Log level
+	)
+
+	consoleCore := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewProductionEncoderConfig()),
+		zapcore.AddSync(os.Stdout),
+		zap.InfoLevel,
+	)
+
+	initiatedLogger := zap.New(zapcore.NewTee(fileCore, consoleCore))
+	// Create a logger from the file core
+	//initiatedLogger, err := zap.NewProduction()
 
 	if err != nil {
 		slog.Error("logger app could not be initiate", "initialZapError:", err.Error())
@@ -34,7 +55,8 @@ func New() Ilogger {
 
 	sugar := initiatedLogger.Sugar()
 	return &Logger{
-		Sugar: sugar,
+		Sugar:   sugar,
+		logFile: logFile,
 	}
 }
 
@@ -76,5 +98,6 @@ func (l *Logger) Fatalf(msg string, args ...interface{}) {
 }
 
 func (l *Logger) Sync() error {
+	defer l.logFile.Close()
 	return l.Sugar.Sync()
 }
