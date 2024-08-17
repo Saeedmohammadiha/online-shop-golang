@@ -1,12 +1,12 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 
 	"net/http"
 
-	dto "github.com/OnlineShop/internal/app/dto/permissions"
+	errDto "github.com/OnlineShop/internal/app/dto/error"
+	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/pkg/logger"
 
@@ -72,49 +72,58 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func SendErrorResponse(ctx context.Context, w http.ResponseWriter, errorText string, statusCode int, l logger.Ilogger) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-
-	//TODO: add an error model to be consistent in app
-	response := map[string]string{"error": errorText}
-	json.NewEncoder(w).Encode(response)
-}
-
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: check if already exists
-	// TODO: add validation as injected dependence
+
 	//TODO: add a middleware for authenticated routes and implement it in the router to use it
-	/// TODO: add a function that handles to response http errors
-	// TODO: handle the keys types
-	// this is the next step
+
+	// TODO: handle the keys type
+	// TODO: extract the business logic to another package (use case )
+	// TODO: make an error package to handle all errors in the app 
+	
+	
+	
+
 	ctx := r.Context()
 	rawBody := ctx.Value(middlewares.KEYCON)
-	var requestBody dto.PermissionCreateRequest
+	var requestBody permissionDto.PermissionCreateRequest
 	utils.ConvertCtxValueToStruct(&rawBody, &requestBody, s.log)
 
 	// validate the permission
 	if err := s.validator.ValidateCreatePermission(&requestBody); err != nil {
-
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		responseError := errDto.Error{
+			Data: errDto.ErrorData{
+				Error:   err,
+				Message: err.Error(),
+				Status:  http.StatusBadRequest,
+			},
+		}
+		utils.SendErrorResponse(ctx, w, &responseError, s.log)
 		return
 	}
 
 	// add the new entry to db
 	savedPermission := models.Permission{Title: requestBody.Title}
 	if _, err := s.PermissionRepository.Create(&savedPermission); err != nil {
-		http.Error(w, "Oops! Something went wrong. please try again later", http.StatusInternalServerError)
+		responseError := errDto.Error{
+			Data: errDto.ErrorData{
+				Error:   err,
+				Message: "Oops! Something went wrong. please try again later",
+				Status:  http.StatusInternalServerError,
+			},
+		}
+		utils.SendErrorResponse(ctx, w, &responseError, s.log)
 		return
 	}
 
 	//convert to json and response
-	responseValue := dto.PermissionCreateResponse{
+	responseValue := permissionDto.PermissionCreateResponse{
 		ID:    savedPermission.ID,
 		Title: savedPermission.Title,
 	}
 
-	utils.SendJsonResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue, s.log)
 
 }
 
