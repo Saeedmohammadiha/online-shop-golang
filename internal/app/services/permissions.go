@@ -1,8 +1,8 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
 
 	"net/http"
 
@@ -27,11 +27,12 @@ type IPermissionService interface {
 type PermissionService struct {
 	PermissionRepository repositories.IPermissionRepository
 	log                  logger.Ilogger
+	validator            validation.IPermissionValidation
 }
 
-func NewPermissionService(p repositories.IPermissionRepository, log logger.Ilogger) IPermissionService {
+func NewPermissionService(p repositories.IPermissionRepository, v validation.IPermissionValidation, log logger.Ilogger) IPermissionService {
 	log.Info("permission service is created")
-	return &PermissionService{PermissionRepository: p, log: log}
+	return &PermissionService{PermissionRepository: p, log: log, validator: v}
 }
 
 func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
@@ -71,43 +72,31 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func SendErrorResponse(ctx context.Context, w http.ResponseWriter, errorText string, statusCode int, l logger.Ilogger) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	//TODO: add an error model to be consistent in app
+	response := map[string]string{"error": errorText}
+	json.NewEncoder(w).Encode(response)
+}
+
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: get the data from context
-	// TODO: clear the json decoding
 	// TODO: check if already exists
 	// TODO: add validation as injected dependence
-	// TODO: make a helper function to send reposes to users
-
-	// TODO: use go routines to set the data in db
-
 	//TODO: add a middleware for authenticated routes and implement it in the router to use it
-
+	/// TODO: add a function that handles to response http errors
+	// TODO: handle the keys types
 	// this is the next step
 	ctx := r.Context()
 	rawBody := ctx.Value(middlewares.KEYCON)
-
-	jsonRequestBody, err := json.Marshal(rawBody)
-	if err != nil {
-		fmt.Println("Error marshaling to JSON:", err)
-		return
-	}
 	var requestBody dto.PermissionCreateRequest
-
-	errss := json.Unmarshal([]byte(jsonRequestBody), &requestBody)
-	if errss != nil {
-		fmt.Println("Error unmarshaling JSON:", err)
-		return
-	}
-	// requestBody, ok := rawBody.(*dto.PermissionCreateRequest)
-	// if !ok {
-	// 	fmt.Println("counting  ", ok)
-	// 	http.Error(w, "Failed to retrieve sanitized data", http.StatusInternalServerError)
-	// 	return
-	// }
+	utils.ConvertCtxValueToStruct(&rawBody, &requestBody, s.log)
 
 	// validate the permission
-	if err := validation.NewPermissionValidation().ValidateCreatePermission(&requestBody); err != nil {
+	if err := s.validator.ValidateCreatePermission(&requestBody); err != nil {
+
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
