@@ -7,7 +7,7 @@ import (
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-func SendJsonResponse(w http.ResponseWriter, data interface{}, l logger.Ilogger) {
+func SendSuccessResponse(w http.ResponseWriter, data interface{}, l logger.Ilogger) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
