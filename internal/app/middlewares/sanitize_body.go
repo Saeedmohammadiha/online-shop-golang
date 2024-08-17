@@ -12,7 +12,9 @@ import (
 )
 
 type BodyKey string
-			const KEYCON BodyKey = "requestBody"
+
+const KEYCON BodyKey = "requestBody"
+
 // SanitizeMiddleware sanitizes incoming JSON requests
 func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -39,16 +41,18 @@ func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 			sanitizedData := sanitizeData(&data, m.log)
 
 			// Create a new context with sanitized data
-			
+
 			ctx := context.WithValue(r.Context(), KEYCON, sanitizedData)
 			r = r.WithContext(ctx)
 			m.log.Info("add the sanitized data to the context and pass to next handler", "body data", sanitizedData)
 
 			// Continue with the next handler
 			next.ServeHTTP(w, r)
+		} else {
+
+			next.ServeHTTP(w, r)
 		}
 
-		next.ServeHTTP(w, r)
 	})
 }
 
