@@ -13,7 +13,7 @@ import (
 var ErrValidation = errors.New("validationError")
 var ErrDatabase = errors.New("databaseError")
 var ErrConvert = errors.New("convertJsonError")
-var ErrAlreayExists = errors.New("recordAlreadyExists")
+var ErrAlreadyExists = errors.New("recordAlreadyExists")
 
 func responseGenerator(err error) *dto.Error {
 	//TODO: add a check for the environment and add or cleat the error inside this function
@@ -38,7 +38,7 @@ func responseGenerator(err error) *dto.Error {
 		res.Data.Message = err.Error()
 		res.Data.Status = http.StatusBadRequest
 	}
-	if errors.Is(err, ErrAlreayExists) {
+	if errors.Is(err, ErrAlreadyExists) {
 		res.Data.Message = "the permission is already exists"
 		res.Data.Status = http.StatusBadRequest
 	}

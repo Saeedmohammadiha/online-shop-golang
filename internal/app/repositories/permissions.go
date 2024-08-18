@@ -45,7 +45,7 @@ func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permiss
 
 	}
 
-	return &permission, fmt.Errorf("dbError %w", utils.ErrAlreayExists)
+	return &permission, fmt.Errorf("dbError %w", utils.ErrAlreadyExists)
 }
 
 func (r *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {
