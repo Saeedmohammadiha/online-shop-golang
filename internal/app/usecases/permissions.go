@@ -27,10 +27,14 @@ func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPe
 }
 
 func (u *PermissionUsecase) Create(data *dto.PermissionCreateRequest) (*models.Permission, error) {
+
 	if err := u.validator.ValidateCreatePermission(data); err != nil {
 		return nil, err
 	}
 
+	if _, err := u.repository.IsPermissionExists(data.Title); err != nil {
+		return nil, err
+	}
 
 	savedPermission := models.Permission{Title: data.Title}
 	if _, err := u.repository.Create(&savedPermission); err != nil {

@@ -68,13 +68,10 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: check if already exists
 
 	//TODO: add a middleware for authenticated routes and implement it in the router to use it
 
 	// TODO: handle the keys type
-	// TODO: extract the business logic to another package (use case )
-	// TODO: make an error package to handle all errors in the app
 
 	ctx := r.Context()
 	rawBody := ctx.Value(middlewares.KEYCON)

@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/OnlineShop/internal/app/models"
@@ -15,6 +16,7 @@ type IPermissionRepository interface {
 	Delete(permissionID int) error
 	FindById(permissionID int) (*models.Permission, error)
 	FindAll() ([]models.Permission, error)
+	IsPermissionExists(title string) (*models.Permission, error)
 	// FindByRoleAndResource(roleId int, resourceId int) (*models.Permission, error)
 	//	FindByRoleIdes(roleIds []uint) (*[]models.Role, error)
 }
@@ -27,6 +29,23 @@ type PermissionRepository struct {
 func NewPermissionRepository(db *gorm.DB, log logger.Ilogger) IPermissionRepository {
 	log.Info("permission Repository is created")
 	return &PermissionRepository{Db: db, log: log}
+}
+
+func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permission, error) {
+	var permission models.Permission
+	err := r.Db.Where("title = ?", title).Take(&permission).Error
+
+	// response with error if already exists
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+
+	}
+
+	return &permission, fmt.Errorf("dbError %w", utils.ErrAlreayExists)
 }
 
 func (r *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {

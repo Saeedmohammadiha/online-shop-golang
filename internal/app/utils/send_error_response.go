@@ -13,6 +13,7 @@ import (
 var ErrValidation = errors.New("validationError")
 var ErrDatabase = errors.New("databaseError")
 var ErrConvert = errors.New("convertJsonError")
+var ErrAlreayExists = errors.New("recordAlreadyExists")
 
 func responseGenerator(err error) *dto.Error {
 	//TODO: add a check for the environment and add or cleat the error inside this function
@@ -37,6 +38,10 @@ func responseGenerator(err error) *dto.Error {
 		res.Data.Message = err.Error()
 		res.Data.Status = http.StatusBadRequest
 	}
+	if errors.Is(err, ErrAlreayExists) {
+		res.Data.Message = "the permission is already exists"
+		res.Data.Status = http.StatusBadRequest
+	}
 
 	return res
 }
@@ -45,6 +50,7 @@ func SendErrorResponse(ctx context.Context, err error, w http.ResponseWriter, l 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Data.Status)
 
+	//TODO: prevent to send stack trace to the user in the production environment
 	json.NewEncoder(w).Encode(err)
 	l.Error("an error has sent to user as a response",
 		"response error:", response,
