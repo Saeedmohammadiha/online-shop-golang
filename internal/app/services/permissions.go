@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
-	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/pkg/logger"
 
@@ -26,7 +25,10 @@ type PermissionService struct {
 
 func NewPermissionService(u usecases.IPermissionUsecases, log logger.Ilogger) IPermissionService {
 	log.Info("permission service is created")
-	return &PermissionService{permissionUsecase: u, log: log}
+	return &PermissionService{
+		permissionUsecase: u,
+		log:               log,
+	}
 }
 
 func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
@@ -68,15 +70,14 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-
-	//TODO: add a middleware for authenticated routes and implement it in the router to use it
-
-	// TODO: handle the keys type
-
+	// TODO: add a middleware for authenticated routes and implement it in the router to use it
+	// TODO: review the codes in the authentication section
+	// TODO: add tests and after that i think we are done with the code base
 	ctx := r.Context()
-	rawBody := ctx.Value(middlewares.KEYCON)
 	var requestBody permissionDto.PermissionCreateRequest
-	utils.ConvertCtxValueToStruct(&rawBody, &requestBody, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+	}
 
 	savedPermission, err := s.permissionUsecase.Create(&requestBody)
 	if err != nil {

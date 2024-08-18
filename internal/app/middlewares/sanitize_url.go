@@ -4,6 +4,8 @@ import (
 	"context"
 	"html/template"
 	"net/http"
+
+	"github.com/OnlineShop/internal/app/utils"
 )
 
 // SanitizeURLParamsMiddleware sanitizes URL query parameters and adds them to the context.
@@ -22,9 +24,7 @@ func (m *Middlewares) SanitizeURLParamsMiddleware(next http.Handler) http.Handle
 		}
 
 		// Enrich context with sanitized parameters
-		type ParamsKey string
-		const paramsKey ParamsKey = "params"
-		ctx := context.WithValue(r.Context(), paramsKey, sanitizedQueryParams)
+		ctx := context.WithValue(r.Context(), utils.REQUEST_PARAMS, sanitizedQueryParams)
 		r = r.WithContext(ctx)
 		m.log.Info("add the sanitized data to the context and pass to next handler", "params", sanitizedQueryParams)
 

@@ -1,11 +1,30 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
 	"github.com/OnlineShop/internal/pkg/logger"
 )
+
+type requestBody string
+type requestParams string
+
+const REQUEST_PARAMS requestParams = "params"
+const REQUEST_BODY requestBody = "requestBody"
+
+type ContextKeys interface {
+	requestParams | requestBody
+}
+
+func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) error {
+	rawValue := ctx.Value(key)
+	if err := ConvertCtxValueToStruct(&rawValue, valueContainer, l); err != nil {
+		return err
+	}
+	return nil
+}
 
 func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Ilogger) error {
 	jsonRequestBody, err := json.Marshal(value)
