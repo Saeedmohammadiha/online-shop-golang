@@ -1,12 +1,9 @@
 package services
 
 import (
-	"errors"
 	"net/http"
 
-	dto "github.com/OnlineShop/internal/app/dto/error"
 	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
-	apperrors "github.com/OnlineShop/internal/app/errors"
 	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -86,24 +83,8 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	savedPermission, err := s.permissionUsecase.Create(&requestBody)
 	if err != nil {
-		responseError := dto.Error{
-			Data: dto.ErrorData{
-				Error:   err,
-				Message: err.Error(),
-				Status:  http.StatusBadRequest,
-			},
-		}
-		if errors.Is(err, apperrors.ErrValidation) {
-			utils.SendErrorResponse(ctx, w, &responseError, s.log)
-			return
-		}
-		if errors.Is(err, apperrors.ErrDatabase) {
-			responseError.Data.Status = http.StatusInternalServerError
-			responseError.Data.Message = "internal error"
-			utils.SendErrorResponse(ctx, w, &responseError, s.log)
-			return
-		}
-
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
 	}
 
 	//convert to json and response

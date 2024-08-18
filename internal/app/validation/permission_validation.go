@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
-	apperrors "github.com/OnlineShop/internal/app/errors"
+	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
 	validation "github.com/go-ozzo/ozzo-validation"
 )
@@ -27,7 +27,7 @@ func (v *PermissionValidation) ValidateCreatePermission(permission *dto.Permissi
 	)
 	if err != nil {
 		v.log.Error("validation error accuared", err)
-		return fmt.Errorf("validationError %w", apperrors.ErrValidation)
+		return fmt.Errorf("validationError %w", utils.ErrValidation)
 	}
 	v.log.Info("validation was successful")
 	return nil
