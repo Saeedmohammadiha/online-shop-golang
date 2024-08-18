@@ -3,11 +3,13 @@ package middlewares
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
@@ -34,7 +36,9 @@ func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 					"status code", http.StatusBadRequest,
 					"error", err,
 				)
-				http.Error(w, "Invalid JSON", http.StatusBadRequest)
+
+				utils.SendErrorResponse(r.Context(), fmt.Errorf("failed to convert json: %w", utils.ErrConvert), w, m.log)
+
 				return
 			}
 
