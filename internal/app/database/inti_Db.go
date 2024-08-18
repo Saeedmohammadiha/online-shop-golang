@@ -19,16 +19,18 @@ func MysqlDatabaseConnection(log logger.Ilogger) *gorm.DB {
 
 	// The returned DB is safe for concurrent use by multiple goroutines and maintains its own pool of idle connections.
 	// Thus, the Open function should be called just once. It is rarely necessary to close a DB.
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{TranslateError: true})
 	if err != nil {
-		log.Fatal("could not connect to database", "db message:", err.Error())
+		// after logging it calls os.Exit(1)
+		log.Fatalf("Failed to connect to database: %v", err)
+
 	}
 
 	log.Info("opened conection to datebase")
 	sqlDB, err := db.DB()
 
 	if err != nil {
-		log.Fatal("could not set the configs to sqldb", "db message:", err.Error())
+		log.Fatalf("could not set the configs to sqldb: %v", err)
 
 	} else {
 
