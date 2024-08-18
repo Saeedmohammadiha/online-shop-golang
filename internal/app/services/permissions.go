@@ -1,19 +1,17 @@
 package services
 
 import (
-	"encoding/json"
-
+	"errors"
 	"net/http"
 
-	errDto "github.com/OnlineShop/internal/app/dto/error"
+	dto "github.com/OnlineShop/internal/app/dto/error"
 	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
+	apperrors "github.com/OnlineShop/internal/app/errors"
 	"github.com/OnlineShop/internal/app/middlewares"
+	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/pkg/logger"
 
-	"github.com/OnlineShop/internal/app/models"
-	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/utils"
-	"github.com/OnlineShop/internal/app/validation"
 )
 
 type IPermissionService interface {
@@ -25,40 +23,39 @@ type IPermissionService interface {
 }
 
 type PermissionService struct {
-	PermissionRepository repositories.IPermissionRepository
-	log                  logger.Ilogger
-	validator            validation.IPermissionValidation
+	permissionUsecase usecases.IPermissionUsecases
+	log               logger.Ilogger
 }
 
-func NewPermissionService(p repositories.IPermissionRepository, v validation.IPermissionValidation, log logger.Ilogger) IPermissionService {
+func NewPermissionService(u usecases.IPermissionUsecases, log logger.Ilogger) IPermissionService {
 	log.Info("permission service is created")
-	return &PermissionService{PermissionRepository: p, log: log, validator: v}
+	return &PermissionService{permissionUsecase: u, log: log}
 }
 
 func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 
 	//get users
 
-	permissions, err := s.PermissionRepository.FindAll()
-	if err != nil {
-		// TODO: prepare a model for error response to envelop the response
-		http.Error(w, "failed to get permissions", http.StatusBadRequest)
-		s.log.Error("responded to user with failed to get permissions",
-			"error from service:", err,
-			"statusCode:", http.StatusBadRequest,
-		)
-		return
-	}
+	// permissions, err := s.PermissionRepository.FindAll()
+	// if err != nil {
+	// 	// TODO: prepare a model for error response to envelop the response
+	// 	http.Error(w, "failed to get permissions", http.StatusBadRequest)
+	// 	s.log.Error("responded to user with failed to get permissions",
+	// 		"error from service:", err,
+	// 		"statusCode:", http.StatusBadRequest,
+	// 	)
+	// 	return
+	// }
 
 	//convert to json
-	jsonResponse, errMarshal := json.Marshal(permissions)
-	if errMarshal != nil {
-		http.Error(w, "failed to parse json to serve", http.StatusInternalServerError)
-		s.log.Error("failed to parse permissions list to json and responded to user",
-			"jsonError:", errMarshal,
-			"statusCode:", http.StatusInternalServerError)
-		return
-	}
+	// jsonResponse, errMarshal := json.Marshal(permissions)
+	// if errMarshal != nil {
+	// 	http.Error(w, "failed to parse json to serve", http.StatusInternalServerError)
+	// 	s.log.Error("failed to parse permissions list to json and responded to user",
+	// 		"jsonError:", errMarshal,
+	// 		"statusCode:", http.StatusInternalServerError)
+	// 	return
+	// }
 
 	s.log.Info("parsed permissions to json")
 
@@ -67,8 +64,8 @@ func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	//send response
-	w.Write(jsonResponse)
-	s.log.Info("responded to user with json file", jsonResponse)
+	w.Write([]byte{})
+	s.log.Info("responded to user with json file", "jsonResponse")
 
 }
 
@@ -80,41 +77,33 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: handle the keys type
 	// TODO: extract the business logic to another package (use case )
-	// TODO: make an error package to handle all errors in the app 
-	
-	
-	
+	// TODO: make an error package to handle all errors in the app
 
 	ctx := r.Context()
 	rawBody := ctx.Value(middlewares.KEYCON)
 	var requestBody permissionDto.PermissionCreateRequest
 	utils.ConvertCtxValueToStruct(&rawBody, &requestBody, s.log)
 
-	// validate the permission
-	if err := s.validator.ValidateCreatePermission(&requestBody); err != nil {
-		responseError := errDto.Error{
-			Data: errDto.ErrorData{
+	savedPermission, err := s.permissionUsecase.Create(&requestBody)
+	if err != nil {
+		responseError := dto.Error{
+			Data: dto.ErrorData{
 				Error:   err,
 				Message: err.Error(),
 				Status:  http.StatusBadRequest,
 			},
 		}
-		utils.SendErrorResponse(ctx, w, &responseError, s.log)
-		return
-	}
-
-	// add the new entry to db
-	savedPermission := models.Permission{Title: requestBody.Title}
-	if _, err := s.PermissionRepository.Create(&savedPermission); err != nil {
-		responseError := errDto.Error{
-			Data: errDto.ErrorData{
-				Error:   err,
-				Message: "Oops! Something went wrong. please try again later",
-				Status:  http.StatusInternalServerError,
-			},
+		if errors.Is(err, apperrors.ErrValidation) {
+			utils.SendErrorResponse(ctx, w, &responseError, s.log)
+			return
 		}
-		utils.SendErrorResponse(ctx, w, &responseError, s.log)
-		return
+		if errors.Is(err, apperrors.ErrDatabase) {
+			responseError.Data.Status = http.StatusInternalServerError
+			responseError.Data.Message = "internal error"
+			utils.SendErrorResponse(ctx, w, &responseError, s.log)
+			return
+		}
+
 	}
 
 	//convert to json and response

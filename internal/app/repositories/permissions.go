@@ -1,8 +1,11 @@
 package repositories
 
 import (
-	"github.com/OnlineShop/internal/pkg/logger"
+	"fmt"
+
+	apperrors "github.com/OnlineShop/internal/app/errors"
 	"github.com/OnlineShop/internal/app/models"
+	"github.com/OnlineShop/internal/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +33,7 @@ func (r *PermissionRepository) Create(permission *models.Permission) (*models.Pe
 	//receive a pointer and pass the pointer to gorm create function
 	if err := r.Db.Create(permission).Error; err != nil {
 		r.log.Error("failed to create permission", "db error:", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("dbError %w", apperrors.ErrDatabase)
 	}
 	r.log.Info("new Permission created", permission)
 	return permission, nil
@@ -39,7 +42,7 @@ func (r *PermissionRepository) Create(permission *models.Permission) (*models.Pe
 func (r *PermissionRepository) Update(permission *models.Permission) (*models.Permission, error) {
 	if err := r.Db.Model(permission).Updates(permission).Error; err != nil {
 		r.log.Error("failed to update permission", "db error:", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("dbError %w", apperrors.ErrDatabase)
 	}
 	r.log.Info("Permission updated", permission)
 	return permission, nil
@@ -48,7 +51,7 @@ func (r *PermissionRepository) Update(permission *models.Permission) (*models.Pe
 func (r *PermissionRepository) Delete(permissionID int) error {
 	if err := r.Db.Where("ID = ?", permissionID).Delete(permissionID).Error; err != nil {
 		r.log.Error("failed to delete permission", "db error:", err.Error())
-		return err
+		return fmt.Errorf("dbError %w", apperrors.ErrDatabase)
 	}
 	r.log.Info("Permission updated", permissionID)
 	return nil
@@ -58,7 +61,7 @@ func (r *PermissionRepository) FindAll() ([]models.Permission, error) {
 	var permissions []models.Permission
 	if err := r.Db.Find(&permissions).Error; err != nil {
 		r.log.Error("failed to get all permissions", "db error:", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("dbError %w", apperrors.ErrDatabase)
 	}
 	r.log.Info("got the list of Permissions")
 
@@ -69,7 +72,7 @@ func (r *PermissionRepository) FindById(permissionID int) (*models.Permission, e
 	var permission models.Permission
 	if err := r.Db.First(&permission, permissionID).Error; err != nil {
 		r.log.Error("failed to get permission", "db error:", err.Error())
-		return nil, err
+		return nil, fmt.Errorf("dbError %w", apperrors.ErrDatabase)
 	}
 	r.log.Info("got the Permission", permission)
 	return &permission, nil
