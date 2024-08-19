@@ -18,5 +18,13 @@
         "titleBar.inactiveBackground": "#007d9c99",
         "titleBar.inactiveForeground": "#e7e7e799"
     },
-    "peacock.color": "#007d9c"
+    "peacock.color": "#007d9c",
+    "cSpell.words": [
+        "accuared",
+        "gorm",
+        "Ilogger",
+        "ozzo",
+        "Usecase",
+        "usecases"
+    ]
 }
