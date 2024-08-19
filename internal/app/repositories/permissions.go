@@ -26,7 +26,7 @@ type PermissionRepository struct {
 }
 
 func NewPermissionRepository(db *gorm.DB, log logger.Ilogger) IPermissionRepository {
-	log.Info("permission Repository is created")
+	log.Debug("permission Repository is created")
 	return &PermissionRepository{Db: db, log: log}
 }
 
@@ -39,7 +39,7 @@ func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permiss
 		r.log.Error("failed to get permission", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Error("successfully found the permission", "db error:", err.Error())
+	r.log.Debug("successfully found the permission", permission)
 
 	return &permission, nil
 }
@@ -50,7 +50,7 @@ func (r *PermissionRepository) Create(permission *models.Permission) (*models.Pe
 		r.log.Error("failed to create permission", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Info("new Permission created", permission)
+	r.log.Debug("new Permission created", permission)
 	return permission, nil
 }
 
@@ -59,7 +59,7 @@ func (r *PermissionRepository) Update(permission *models.Permission) (*models.Pe
 		r.log.Error("failed to update permission", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Info("Permission updated", permission)
+	r.log.Debug("Permission updated", permission)
 	return permission, nil
 }
 
@@ -68,7 +68,7 @@ func (r *PermissionRepository) Delete(permissionID int) error {
 		r.log.Error("failed to delete permission", "db error:", err.Error())
 		return fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Info("Permission updated", permissionID)
+	r.log.Debug("Permission updated", permissionID)
 	return nil
 }
 
@@ -78,7 +78,7 @@ func (r *PermissionRepository) GetAll() ([]models.Permission, error) {
 		r.log.Error("failed to get all permissions", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Info("got the list of Permissions")
+	r.log.Debug("got the list of Permissions")
 
 	return permissions, nil
 }
@@ -89,7 +89,7 @@ func (r *PermissionRepository) GetById(permissionID int) (*models.Permission, er
 		r.log.Error("failed to get permission", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
-	r.log.Info("got the Permission", permission)
+	r.log.Debug("got the Permission", permission)
 	return &permission, nil
 
 }
