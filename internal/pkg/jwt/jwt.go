@@ -3,54 +3,75 @@ package internaljwt
 import (
 	"os"
 
-	"github.com/OnlineShop/internal/app/models"
+	"github.com/OnlineShop/internal/pkg/logger"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Token interface {
-	GenerateAccessToken(userID int, roleIDs []models.Role) (string, error)
-	GenerateRefreshToken(userID int, roleIDs []models.Role) (string, error)
+type IJwtToken interface {
+	GenerateAccessToken(userID int) (*string, error)
+	GenerateRefreshToken(userID int) (*string, error)
 }
 
 type JWTClaim struct {
 	UserID int `json:"userID"`
-	RoleID int `json:"roleID"`
 	jwt.RegisteredClaims
 }
 
-type Jwt struct{}
-
-func New() Token {
-	return &Jwt{}
+type JwtToken struct {
+	log logger.Ilogger
 }
 
-func (*Jwt) GenerateAccessToken(userID int, roleIDs []models.Role) (string, error) {
-	
+func New(l logger.Ilogger) IJwtToken {
+	return &JwtToken{
+		log: l,
+	}
+}
+
+func (j *JwtToken) GenerateAccessToken(userID int) (*string, error) {
+
 	var claims = &JWTClaim{
 		UserID: userID,
-		RoleID: int(roleIDs[0].ID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	AccessToken, err := token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
 	if err != nil {
-		return "", err
-	}
+		j.log.Debug("failed to generate access token",
+			"error", err,
+			"user", userID,
+			"claim", claims,
+		)
+		return nil, err
 
-	return AccessToken, nil
+	}
+	j.log.Debug("a new access token is generated",
+		"token", AccessToken,
+		"user", userID,
+		"claim", claims,
+	)
+	return &AccessToken, nil
 }
 
-func (*Jwt) GenerateRefreshToken(userID int,  roleIDs []models.Role) (string, error) {
+func (j *JwtToken) GenerateRefreshToken(userID int) (*string, error) {
 	var claims = &JWTClaim{
 		UserID: userID,
-		RoleID:  int(roleIDs[0].ID),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	RefreashToken, err := token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
+	RefreshToken, err := token.SignedString([]byte(os.Getenv("TOKEN_SECRET")))
 	if err != nil {
-		return "", err
+		j.log.Debug("failed to generate refresh token",
+			"error", err,
+			"user", userID,
+			"claim", claims,
+		)
+		return nil, err
 	}
 
-	return RefreashToken, nil
+	j.log.Debug("a new refresh token is generated",
+		"token", RefreshToken,
+		"user", userID,
+		"claim", claims,
+	)
+	return &RefreshToken, nil
 }
