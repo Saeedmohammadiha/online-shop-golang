@@ -1,11 +1,16 @@
 package usecases
 
 import (
+	"errors"
+	"fmt"
+
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
+	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
 	"github.com/OnlineShop/internal/pkg/logger"
+	"gorm.io/gorm"
 )
 
 type IPermissionUsecases interface {
@@ -33,7 +38,12 @@ func (u *PermissionUsecase) Create(data *dto.PermissionCreateRequest) (*models.P
 	}
 
 	if _, err := u.repository.IsPermissionExists(data.Title); err != nil {
-		return nil, err
+		// return nil, err
+
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
+		}
+
 	}
 
 	savedPermission := models.Permission{Title: data.Title}
