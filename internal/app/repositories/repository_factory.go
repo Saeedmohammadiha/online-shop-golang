@@ -7,12 +7,14 @@ import (
 
 type RepositoryFactory struct {
 	PermissionRepository IPermissionRepository
+	UserRepository       IUserRepository
 }
 
 func NewRepositoryFactory(db *gorm.DB, log logger.Ilogger) *RepositoryFactory {
 	log.Info("repository factory is created")
 	return &RepositoryFactory{
 		PermissionRepository: NewPermissionRepository(db, log),
+		UserRepository:       NewUserRepository(db, log),
 	}
 
 }
