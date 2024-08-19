@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/OnlineShop/internal/app/models"
@@ -14,8 +13,8 @@ type IPermissionRepository interface {
 	Create(permission *models.Permission) (*models.Permission, error)
 	Update(permission *models.Permission) (*models.Permission, error)
 	Delete(permissionID int) error
-	FindById(permissionID int) (*models.Permission, error)
-	FindAll() ([]models.Permission, error)
+	GetById(permissionID int) (*models.Permission, error)
+	GetAll() ([]models.Permission, error)
 	IsPermissionExists(title string) (*models.Permission, error)
 	// FindByRoleAndResource(roleId int, resourceId int) (*models.Permission, error)
 	//	FindByRoleIdes(roleIds []uint) (*[]models.Role, error)
@@ -35,25 +34,21 @@ func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permiss
 	var permission models.Permission
 	err := r.Db.Where("title = ?", title).Take(&permission).Error
 
-	// response with error if already exists
-	// TODO: move this to the usecase and just send the permission and the error
+	// response with error if already exist
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil
-		}
-
+		r.log.Error("failed to get permission", "db error:", err.Error())
 		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
-
 	}
+	r.log.Error("successfully found the permission", "db error:", err.Error())
 
-	return &permission, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
+	return &permission, nil
 }
 
 func (r *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {
 	//receive a pointer and pass the pointer to gorm create function
 	if err := r.Db.Create(permission).Error; err != nil {
 		r.log.Error("failed to create permission", "db error:", err.Error())
-		return nil,fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
+		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("new Permission created", permission)
 	return permission, nil
@@ -77,7 +72,7 @@ func (r *PermissionRepository) Delete(permissionID int) error {
 	return nil
 }
 
-func (r *PermissionRepository) FindAll() ([]models.Permission, error) {
+func (r *PermissionRepository) GetAll() ([]models.Permission, error) {
 	var permissions []models.Permission
 	if err := r.Db.Find(&permissions).Error; err != nil {
 		r.log.Error("failed to get all permissions", "db error:", err.Error())
@@ -88,7 +83,7 @@ func (r *PermissionRepository) FindAll() ([]models.Permission, error) {
 	return permissions, nil
 }
 
-func (r *PermissionRepository) FindById(permissionID int) (*models.Permission, error) {
+func (r *PermissionRepository) GetById(permissionID int) (*models.Permission, error) {
 	var permission models.Permission
 	if err := r.Db.First(&permission, permissionID).Error; err != nil {
 		r.log.Error("failed to get permission", "db error:", err.Error())

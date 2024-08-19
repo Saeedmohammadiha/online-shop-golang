@@ -14,8 +14,8 @@ type IPermissionService interface {
 	Create(w http.ResponseWriter, r *http.Request)
 	Update(w http.ResponseWriter, r *http.Request)
 	Delete(w http.ResponseWriter, r *http.Request)
-	FindAll(w http.ResponseWriter, r *http.Request)
-	FindById(w http.ResponseWriter, r *http.Request)
+	GetAll(w http.ResponseWriter, r *http.Request)
+	GetById(w http.ResponseWriter, r *http.Request)
 }
 
 type PermissionService struct {
@@ -23,19 +23,19 @@ type PermissionService struct {
 	log               logger.Ilogger
 }
 
-func NewPermissionService(u usecases.IPermissionUsecases, log logger.Ilogger) IPermissionService {
-	log.Info("permission service is created")
+func NewPermissionService(u usecases.IPermissionUsecases, l logger.Ilogger) IPermissionService {
+	l.Info("permission service is created")
 	return &PermissionService{
 		permissionUsecase: u,
-		log:               log,
+		log:               l,
 	}
 }
 
-func (s *PermissionService) FindAll(w http.ResponseWriter, r *http.Request) {
+func (s *PermissionService) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	//get users
 
-	// permissions, err := s.PermissionRepository.FindAll()
+	// permissions, err := s.PermissionRepository.GetAll()
 	// if err != nil {
 	// 	// TODO: prepare a model for error response to envelop the response
 	// 	http.Error(w, "failed to get permissions", http.StatusBadRequest)
@@ -95,7 +95,7 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (service *PermissionService) FindById(w http.ResponseWriter, r *http.Request) {
+func (service *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 
 }
 

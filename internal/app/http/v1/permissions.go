@@ -16,9 +16,9 @@ func RegisterPermissionRoutes(r router.IRouter, RepositoryFactory repositories.R
 	permissionService := services.NewPermissionService(permissionUsecase, l)
 
 	permissionRouter := r.CreateSubRouter("/permissions")
-	permissionRouter.RegisterRoute("GET", "", permissionService.FindAll)
+	permissionRouter.RegisterRoute("GET", "", permissionService.GetAll)
 	permissionRouter.RegisterRoute("POST", "", permissionService.Create)
 	permissionRouter.RegisterRoute("PUT", "", permissionService.Update)
-	permissionRouter.RegisterRoute("GET", "/{id}", permissionService.FindById)
+	permissionRouter.RegisterRoute("GET", "/{id}", permissionService.GetById)
 	permissionRouter.RegisterRoute("DELETE", "/{id}", permissionService.Delete)
 }

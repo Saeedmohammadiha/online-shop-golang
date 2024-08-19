@@ -9,8 +9,8 @@ type RoleRepo interface {
 	Create(Role *models.Role) (*models.Role, error)
 	Update(Role *models.Role) (*models.Role, error)
 	Delete(RoleID int) error
-	FindById(RoleID int) (*models.Role, error)
-	FindAll() ([]models.Role, error)
+	GetById(RoleID int) (*models.Role, error)
+	GetAll() ([]models.Role, error)
 }
 
 type RoleRepository struct {
@@ -40,7 +40,7 @@ func (repo *RoleRepository) Delete(RoleID int) error {
 	return nil
 }
 
-func (repo *RoleRepository) FindAll() ([]models.Role, error) {
+func (repo *RoleRepository) GetAll() ([]models.Role, error) {
 	var Roles []models.Role
 	repo.Db.Find(&Roles)
 	var results []models.Role
@@ -49,7 +49,7 @@ func (repo *RoleRepository) FindAll() ([]models.Role, error) {
 	return results, nil
 }
 
-func (repo *RoleRepository) FindById(RoleID int) (*models.Role, error) {
+func (repo *RoleRepository) GetById(RoleID int) (*models.Role, error) {
 	var result models.Role
 	//	repo.Db.Model(models.Role{ID: 10}).First(&result)
 	return &result, nil
