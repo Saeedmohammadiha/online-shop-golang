@@ -33,7 +33,7 @@ func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 					"error", err,
 				)
 
-				utils.SendErrorResponse(r.Context(), fmt.Errorf("failed to convert json: %w", utils.ErrConvert), w, m.log)
+				utils.SendErrorResponse(r.Context(), fmt.Errorf("%s%w", utils.ErrConvertTag, err), w, m.log)
 
 				return
 			}

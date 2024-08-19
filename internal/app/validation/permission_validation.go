@@ -27,7 +27,7 @@ func (v *PermissionValidation) ValidateCreatePermission(permission *dto.Permissi
 	)
 	if err != nil {
 		v.log.Error("validation error accuared", err)
-		return fmt.Errorf("validationError %w", utils.ErrValidation)
+		return fmt.Errorf("%s%w", utils.ErrValidationTag, err)
 	}
 	v.log.Info("validation was successful")
 	return nil

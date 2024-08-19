@@ -33,7 +33,7 @@ func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Il
 			"value: ", value,
 			"to variable:", variable,
 			"error", err)
-		return fmt.Errorf("failed to convert json: %w", ErrConvert)
+		return fmt.Errorf("%s%w", ErrConvertTag, err)
 	}
 	l.Info("the value from ctx is converted to json", "value:", jsonRequestBody)
 
@@ -44,7 +44,7 @@ func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Il
 			"to variable:", variable,
 			"error", err)
 
-		return fmt.Errorf("failed to convert json: %w", ErrConvert)
+		return fmt.Errorf("%s%w", ErrConvertTag, err)
 	}
 	l.Info("successfully converted the ctx json to  struct",
 		"value:", value,

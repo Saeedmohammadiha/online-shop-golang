@@ -36,23 +36,24 @@ func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permiss
 	err := r.Db.Where("title = ?", title).Take(&permission).Error
 
 	// response with error if already exists
+	// TODO: move this to the usecase and just send the permission and the error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 
-		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 
 	}
 
-	return &permission, fmt.Errorf("dbError %w", utils.ErrAlreadyExists)
+	return &permission, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 }
 
 func (r *PermissionRepository) Create(permission *models.Permission) (*models.Permission, error) {
 	//receive a pointer and pass the pointer to gorm create function
 	if err := r.Db.Create(permission).Error; err != nil {
 		r.log.Error("failed to create permission", "db error:", err.Error())
-		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return nil,fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("new Permission created", permission)
 	return permission, nil
@@ -61,7 +62,7 @@ func (r *PermissionRepository) Create(permission *models.Permission) (*models.Pe
 func (r *PermissionRepository) Update(permission *models.Permission) (*models.Permission, error) {
 	if err := r.Db.Model(permission).Updates(permission).Error; err != nil {
 		r.log.Error("failed to update permission", "db error:", err.Error())
-		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("Permission updated", permission)
 	return permission, nil
@@ -70,7 +71,7 @@ func (r *PermissionRepository) Update(permission *models.Permission) (*models.Pe
 func (r *PermissionRepository) Delete(permissionID int) error {
 	if err := r.Db.Where("ID = ?", permissionID).Delete(permissionID).Error; err != nil {
 		r.log.Error("failed to delete permission", "db error:", err.Error())
-		return fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("Permission updated", permissionID)
 	return nil
@@ -80,7 +81,7 @@ func (r *PermissionRepository) FindAll() ([]models.Permission, error) {
 	var permissions []models.Permission
 	if err := r.Db.Find(&permissions).Error; err != nil {
 		r.log.Error("failed to get all permissions", "db error:", err.Error())
-		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("got the list of Permissions")
 
@@ -91,7 +92,7 @@ func (r *PermissionRepository) FindById(permissionID int) (*models.Permission, e
 	var permission models.Permission
 	if err := r.Db.First(&permission, permissionID).Error; err != nil {
 		r.log.Error("failed to get permission", "db error:", err.Error())
-		return nil, fmt.Errorf("dbError %w", utils.ErrDatabase)
+		return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
 	}
 	r.log.Info("got the Permission", permission)
 	return &permission, nil
