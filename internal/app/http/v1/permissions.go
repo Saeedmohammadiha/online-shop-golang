@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/router"
 	"github.com/OnlineShop/internal/app/services"
@@ -16,9 +17,9 @@ func RegisterPermissionRoutes(r router.IRouter, RepositoryFactory repositories.R
 	permissionService := services.NewPermissionService(permissionUsecase, l)
 
 	permissionRouter := r.CreateSubRouter("/permissions")
-	permissionRouter.RegisterRoute("GET", "", permissionService.GetAll)
-	permissionRouter.RegisterRoute("POST", "", permissionService.Create)
-	permissionRouter.RegisterRoute("PUT", "", permissionService.Update)
-	permissionRouter.RegisterRoute("GET", "/{id}", permissionService.GetById)
-	permissionRouter.RegisterRoute("DELETE", "/{id}", permissionService.Delete)
+	permissionRouter.RegisterRoute("GET", "", middlewares.AuthProtect(permissionService.GetAll, RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("POST", "", middlewares.AuthProtect(permissionService.Create, RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("PUT", "", middlewares.AuthProtect(permissionService.Update, RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("GET", "/{id}", middlewares.AuthProtect(permissionService.GetById, RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("DELETE", "/{id}", middlewares.AuthProtect(permissionService.Delete, RepositoryFactory.UserRepository, l))
 }

@@ -5,14 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
 type requestBody string
 type requestParams string
+type user *models.User
 
-const REQUEST_PARAMS requestParams = "params"
-const REQUEST_BODY requestBody = "requestBody"
+var REQUEST_PARAMS requestParams = "params"
+var REQUEST_BODY requestBody = "requestBody"
+var USER user = &models.User{}
 
 type ContextKeys interface {
 	requestParams | requestBody
