@@ -14,6 +14,8 @@ const ErrDatabaseTag = "databaseError"
 const ErrConvertTag = "convertJsonError"
 const ErrInvalidPasswordTag = "invalidPassword"
 const ErrTokenGenerationTag = "TokenGeneration"
+const ErrTokenDecodingTag = "TokenDecode"
+const ErrTokenInvalidTag = "InvalidToken"
 
 func responseGenerator(err error) *dto.Error {
 	//TODO: add a check for the environment and add or cleat the error inside this function
