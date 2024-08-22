@@ -3,7 +3,8 @@ package utils
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
@@ -19,7 +20,7 @@ type ContextKeys interface {
 	requestParams | requestBody | user
 }
 
-func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) error {
+func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) *apperrors.AppError {
 	rawValue := ctx.Value(key)
 	if err := ConvertCtxValueToStruct(&rawValue, valueContainer, l); err != nil {
 		return err
@@ -27,14 +28,14 @@ func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, v
 	return nil
 }
 
-func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Ilogger) error {
+func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Ilogger) *apperrors.AppError {
 	jsonRequestBody, err := json.Marshal(value)
 	if err != nil {
 		l.Error("unable to convert the ctx data to json:",
 			"value: ", value,
 			"to variable:", variable,
 			"error", err)
-		return fmt.Errorf("%s%w", ErrConvertTag, err)
+		return apperrors.NewInternalError("failed to convert ctx data to json", err)
 	}
 	l.Info("the value from ctx is converted to json", "value:", jsonRequestBody)
 
@@ -45,7 +46,7 @@ func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Il
 			"to variable:", variable,
 			"error", err)
 
-		return fmt.Errorf("%s%w", ErrConvertTag, err)
+		return apperrors.NewInternalError("failed to convert the json to struct", err)
 	}
 	l.Info("successfully converted the ctx json to  struct",
 		"value:", value,

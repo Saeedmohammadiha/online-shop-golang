@@ -2,8 +2,8 @@ package usecases
 
 import (
 	"context"
-	"fmt"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/auth"
 	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/utils"
@@ -13,8 +13,8 @@ import (
 )
 
 type IAuthUsecases interface {
-	Login(ctx context.Context) (*dto.LoginResponse, error)
-	Refresh(ctx context.Context) (*dto.RefreshResponse, error)
+	Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError)
+	Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError)
 }
 
 type AuthUsecase struct {
@@ -33,7 +33,7 @@ func NewAuthUsecase(r repositories.IUserRepository, v validation.IAuthValidation
 	}
 }
 
-func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, error) {
+func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError) {
 
 	var requestBody dto.LoginRequest
 	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, a.log); err != nil {
@@ -62,7 +62,7 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, error) {
 			"errorLocation", "loginUsecase",
 		)
 
-		return nil, fmt.Errorf("%s%w", utils.ErrInvalidPasswordTag, err)
+		return nil, apperrors.NewAuthenticationError("the password in not correct", nil)
 	}
 
 	//return token and login the user
@@ -86,7 +86,7 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, error) {
 	return &responseData, nil
 }
 
-func (a *AuthUsecase) Refresh(ctx context.Context) (*dto.RefreshResponse, error) {
+func (a *AuthUsecase) Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError) {
 
 	var requestBody dto.RefreshRequest
 	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, a.log); err != nil {

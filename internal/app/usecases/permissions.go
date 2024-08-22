@@ -2,19 +2,18 @@ package usecases
 
 import (
 	"errors"
-	"fmt"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
-	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
 	"github.com/OnlineShop/internal/pkg/logger"
 	"gorm.io/gorm"
 )
 
 type IPermissionUsecases interface {
-	Create(data *dto.PermissionCreateRequest) (*models.Permission, error)
+	Create(data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError)
 }
 
 type PermissionUsecase struct {
@@ -31,7 +30,7 @@ func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPe
 	}
 }
 
-func (u *PermissionUsecase) Create(data *dto.PermissionCreateRequest) (*models.Permission, error) {
+func (u *PermissionUsecase) Create(data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError) {
 
 	if err := u.validator.ValidateCreatePermission(data); err != nil {
 		return nil, err
@@ -41,7 +40,7 @@ func (u *PermissionUsecase) Create(data *dto.PermissionCreateRequest) (*models.P
 		// return nil, err
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("%s%w", utils.ErrDatabaseTag, err)
+			return nil, err
 		}
 
 	}

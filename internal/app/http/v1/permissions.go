@@ -17,9 +17,9 @@ func RegisterPermissionRoutes(r router.IRouter, RepositoryFactory repositories.R
 	permissionService := services.NewPermissionService(permissionUsecase, l)
 
 	permissionRouter := r.CreateSubRouter("/permissions")
-	permissionRouter.RegisterRoute("GET", "", middlewares.AuthProtect(permissionService.GetAll, RepositoryFactory.UserRepository, l))
-	permissionRouter.RegisterRoute("POST", "", middlewares.AuthProtect(permissionService.Create, RepositoryFactory.UserRepository, l))
-	permissionRouter.RegisterRoute("PUT", "", middlewares.AuthProtect(permissionService.Update, RepositoryFactory.UserRepository, l))
-	permissionRouter.RegisterRoute("GET", "/{id}", middlewares.AuthProtect(permissionService.GetById, RepositoryFactory.UserRepository, l))
-	permissionRouter.RegisterRoute("DELETE", "/{id}", middlewares.AuthProtect(permissionService.Delete, RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("GET", "", middlewares.AuthProtect(middlewares.GuardRoute(permissionService.GetAll, []string{"readPermissions"}, l), RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("POST", "", middlewares.AuthProtect(middlewares.GuardRoute(permissionService.Create, []string{"createPermission"}, l), RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("PUT", "", middlewares.AuthProtect(middlewares.GuardRoute(permissionService.Update, []string{"updatePermission"}, l), RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("GET", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(permissionService.GetById, []string{"readPermissions"}, l), RepositoryFactory.UserRepository, l))
+	permissionRouter.RegisterRoute("DELETE", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(permissionService.Delete, []string{"deletePermission"}, l), RepositoryFactory.UserRepository, l))
 }

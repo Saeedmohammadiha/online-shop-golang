@@ -1,8 +1,8 @@
 package validation
 
 import (
-	"fmt"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/auth"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -11,7 +11,7 @@ import (
 )
 
 type IAuthValidation interface {
-	ValidateLogin(requestData *dto.LoginRequest) error
+	ValidateLogin(requestData *dto.LoginRequest) *apperrors.AppError
 }
 
 type AuthValidation struct {
@@ -24,7 +24,7 @@ func NewAuthValidation(l logger.Ilogger) IAuthValidation {
 	}
 }
 
-func (v *AuthValidation) ValidateLogin(requestData *dto.LoginRequest) error {
+func (v *AuthValidation) ValidateLogin(requestData *dto.LoginRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(requestData,
 		validation.Field(&requestData.Email, validation.Required.Error("you must provide the email"), is.Email.Error("the email is invalid")),
@@ -32,7 +32,7 @@ func (v *AuthValidation) ValidateLogin(requestData *dto.LoginRequest) error {
 
 	if err != nil {
 		v.log.Error("validation error accuared for login", err)
-		return fmt.Errorf("%s%w", utils.ErrValidationTag, err)
+		return apperrors.NewValidationError("the inputs are not valid", err)
 	}
 
 	v.log.Info("login validation was successful")

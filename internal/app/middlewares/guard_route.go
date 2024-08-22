@@ -3,22 +3,40 @@ package middlewares
 import (
 	"net/http"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-func GuardRoute(f func(w http.ResponseWriter, r *http.Request), routePernissions []string, l logger.Ilogger) func(w http.ResponseWriter, r *http.Request) {
+func containsPermission(routePermissions map[string]struct{}, permission string) bool {
+	_, exists := routePermissions[permission]
+	return exists
+}
+
+func GuardRoute(f func(w http.ResponseWriter, r *http.Request), routePermissions []string, l logger.Ilogger) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := models.User{}
 		utils.GetValueFromCtx(ctx, utils.USER, &user, l)
 
-		// check the roles of the user and the permissions of that role
-		//compare the provided permissions to the permissions of the user's role
+		// Convert routePermissions to a map for O(1) lookup
+		routePermissionsMap := make(map[string]struct{}, len(routePermissions))
+		for _, perm := range routePermissions {
+			routePermissionsMap[perm] = struct{}{}
+		}
 
-		// if the there was the permission pass the function
-		//if there is no permission just send the 403 response
-		f(w, r)
+		for _, role := range user.Roles {
+			for _, perm := range role.Permissions {
+				if containsPermission(routePermissionsMap, perm.Title) {
+					f(w, r)
+				} else {
+					err := apperrors.NewAuthorizationError("you do not have access", nil)
+					utils.SendErrorResponse(ctx, err, w, l)
+					return
+				}
+			}
+		}
+
 	}
 }

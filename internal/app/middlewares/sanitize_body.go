@@ -3,12 +3,12 @@ package middlewares
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
 	"time"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
@@ -33,7 +33,7 @@ func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 					"error", err,
 				)
 
-				utils.SendErrorResponse(r.Context(), fmt.Errorf("%s%w", utils.ErrConvertTag, err), w, m.log)
+				utils.SendErrorResponse(r.Context(), apperrors.NewBadRequestError("invalid json", err), w, m.log)
 
 				return
 			}

@@ -1,19 +1,18 @@
 package internaljwt
 
 import (
-	"fmt"
 	"os"
 	"time"
 
-	"github.com/OnlineShop/internal/app/utils"
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/pkg/logger"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type IJwtToken interface {
-	GenerateAccessToken(userID int) (*string, error)
-	GenerateRefreshToken(userID int) (*string, error)
-	DecodeToken(tokenString string) (*JWTClaim, error)
+	GenerateAccessToken(userID int) (*string, *apperrors.AppError)
+	GenerateRefreshToken(userID int) (*string, *apperrors.AppError)
+	DecodeToken(tokenString string) (*JWTClaim, *apperrors.AppError)
 }
 
 type JWTClaim struct {
@@ -31,7 +30,7 @@ func New(l logger.Ilogger) IJwtToken {
 	}
 }
 
-func (j *JwtToken) GenerateAccessToken(userID int) (*string, error) {
+func (j *JwtToken) GenerateAccessToken(userID int) (*string, *apperrors.AppError) {
 
 	var claims = &JWTClaim{
 		UserID: userID,
@@ -48,7 +47,7 @@ func (j *JwtToken) GenerateAccessToken(userID int) (*string, error) {
 			"user", userID,
 			"claim", claims,
 		)
-		return nil, fmt.Errorf("%s%w", utils.ErrTokenGenerationTag, err)
+		return nil, apperrors.NewInternalError("failed to generate access token", err)
 
 	}
 	j.log.Debug("a new access token is generated",
@@ -59,7 +58,7 @@ func (j *JwtToken) GenerateAccessToken(userID int) (*string, error) {
 	return &AccessToken, nil
 }
 
-func (j *JwtToken) GenerateRefreshToken(userID int) (*string, error) {
+func (j *JwtToken) GenerateRefreshToken(userID int) (*string, *apperrors.AppError) {
 	var claims = &JWTClaim{
 		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -75,7 +74,7 @@ func (j *JwtToken) GenerateRefreshToken(userID int) (*string, error) {
 			"user", userID,
 			"claim", claims,
 		)
-		return nil, fmt.Errorf("%s%w", utils.ErrTokenGenerationTag, err)
+		return nil, apperrors.NewInternalError("failed to generate refresh token ", err)
 	}
 
 	j.log.Debug("a new refresh token is generated",
@@ -86,7 +85,7 @@ func (j *JwtToken) GenerateRefreshToken(userID int) (*string, error) {
 	return &RefreshToken, nil
 }
 
-func (j *JwtToken) DecodeToken(tokenString string) (*JWTClaim, error) {
+func (j *JwtToken) DecodeToken(tokenString string) (*JWTClaim, *apperrors.AppError) {
 	claims := &JWTClaim{}
 
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -97,7 +96,7 @@ func (j *JwtToken) DecodeToken(tokenString string) (*JWTClaim, error) {
 		j.log.Error("failed to parse the token ",
 			"token", tokenString,
 		)
-		return nil, fmt.Errorf("%s%w", utils.ErrTokenDecodingTag, err)
+		return nil, apperrors.NewAuthenticationError("failed to decode token", err)
 	}
 
 	if token.Valid {
@@ -113,7 +112,7 @@ func (j *JwtToken) DecodeToken(tokenString string) (*JWTClaim, error) {
 			"token", tokenString,
 			"decoded token", token,
 		)
-		return nil, fmt.Errorf("%s%w", utils.ErrTokenInvalidTag, err)
+		return nil, apperrors.NewAuthenticationError("the token in not valid", err)
 	}
 
 }

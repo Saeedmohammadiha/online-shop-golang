@@ -1,8 +1,8 @@
 package validation
 
 import (
-	"fmt"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/users"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -11,8 +11,8 @@ import (
 )
 
 type IUserValidation interface {
-	ValidateCreateUser(r dto.CreateUserRequest) error
-	ValidateUpdateUser(r dto.UserUpdateRequest) error
+	ValidateCreateUser(r dto.CreateUserRequest) *apperrors.AppError
+	ValidateUpdateUser(r dto.UserUpdateRequest) *apperrors.AppError
 }
 
 type UserValidation struct {
@@ -25,7 +25,7 @@ func NewUserValidator(l logger.Ilogger) IUserValidation {
 	}
 }
 
-func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) error {
+func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
@@ -35,7 +35,7 @@ func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) error {
 		validation.Field(&r.Password, utils.NewValidatePassword(r.Password)))
 	if err != nil {
 		v.log.Error("validation error accuared for login", err)
-		return fmt.Errorf("%s%w", utils.ErrValidationTag, err)
+		return apperrors.NewValidationError("the inputs are not valid", err)
 	}
 
 	v.log.Info("login validation was successful")
@@ -43,7 +43,7 @@ func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) error {
 
 }
 
-func (v *UserValidation) ValidateUpdateUser(r dto.UserUpdateRequest) error {
+func (v *UserValidation) ValidateUpdateUser(r dto.UserUpdateRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
@@ -55,7 +55,7 @@ func (v *UserValidation) ValidateUpdateUser(r dto.UserUpdateRequest) error {
 
 	if err != nil {
 		v.log.Error("validation error accuared for login", err)
-		return fmt.Errorf("%s%w", utils.ErrValidationTag, err)
+		return apperrors.NewValidationError("the inputs are not valid", err)
 	}
 
 	v.log.Info("login validation was successful")
