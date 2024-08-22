@@ -1,0 +1,22 @@
+package models
+
+import (
+	"gorm.io/gorm"
+)
+
+type User struct {
+	gorm.Model
+	Name         string        `json:"name"`
+	LastName     string        `json:"lastName"`
+	Email        string        `gorm:"unique" json:"email"`
+	Password     string        `json:"password"`
+	PhoneNumber  string        `json:"phoneNumber"`
+	AccessToken  string        `json:"accessToken"`
+	RefreshToken string        `json:"refreshToken"`
+	Roles        []Role        `gorm:"many2many:user_roles;"`
+	Transactions []Transaction `json:"transactions,omitempty"`
+	Addresses    []Address     `gorm:"many2many:user_addresses" json:"addresses,omitempty"`
+	Orders       []Order       `json:"orders,omitempty"`
+	Scores       []Score       `json:"scores,omitempty"`
+	Comments     []Comment     `json:"comments,omitempty"`
+}
