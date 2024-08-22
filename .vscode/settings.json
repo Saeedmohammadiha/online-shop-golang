@@ -23,6 +23,7 @@
         "accuared",
         "gorm",
         "Ilogger",
+        "internaljwt",
         "ozzo",
         "Usecase",
         "usecases"
