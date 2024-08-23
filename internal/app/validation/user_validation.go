@@ -12,8 +12,8 @@ import (
 )
 
 type IUserValidation interface {
-	ValidateCreateUser(ctx context.Context, vr dto.CreateUserRequest) *apperrors.AppError
-	ValidateUpdateUser(ctx context.Context, r dto.UserUpdateRequest) *apperrors.AppError
+	ValidateCreateUser(ctx context.Context, r *dto.CreateUserRequest) *apperrors.AppError
+	ValidateUpdateUser(ctx context.Context, r *dto.UserUpdateRequest) *apperrors.AppError
 }
 
 type UserValidation struct {
@@ -26,9 +26,9 @@ func NewUserValidator(l logger.Ilogger) IUserValidation {
 	}
 }
 
-func (v *UserValidation) ValidateCreateUser(ctx context.Context, r dto.CreateUserRequest) *apperrors.AppError {
+func (v *UserValidation) ValidateCreateUser(ctx context.Context, r *dto.CreateUserRequest) *apperrors.AppError {
 
-	err := validation.ValidateStruct(&r,
+	err := validation.ValidateStruct(r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.LastName, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.Email, validation.Required.Error("you must provide the email"), is.Email.Error("the email is invalid")),
@@ -44,9 +44,9 @@ func (v *UserValidation) ValidateCreateUser(ctx context.Context, r dto.CreateUse
 
 }
 
-func (v *UserValidation) ValidateUpdateUser(ctx context.Context, r dto.UserUpdateRequest) *apperrors.AppError {
+func (v *UserValidation) ValidateUpdateUser(ctx context.Context, r *dto.UserUpdateRequest) *apperrors.AppError {
 
-	err := validation.ValidateStruct(&r,
+	err := validation.ValidateStruct(r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.LastName, validation.Length(3, 20).Error("the name must be between and 20 characters")),
 		validation.Field(&r.Email, validation.Required.Error("you must provide the email"), is.Email.Error("the email is invalid")),
