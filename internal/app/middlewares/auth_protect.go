@@ -29,7 +29,7 @@ func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.
 		l.Debug("authorizationHeaderArray", authorizationHeaderArray)
 		token := authorizationHeaderArray[1]
 		l.Debug("authorizationHeader", token)
-
+		ctx = context.WithValue(ctx, utils.TOKEN, token)
 		// decode token
 
 		claims, err := internaljwt.New(l).DecodeToken(token)

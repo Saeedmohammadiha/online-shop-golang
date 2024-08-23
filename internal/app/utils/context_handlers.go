@@ -11,13 +11,15 @@ import (
 type requestBody string
 type requestParams string
 type user string
+type token string
 
 const REQUEST_PARAMS requestParams = "params"
 const REQUEST_BODY requestBody = "requestBody"
 const USER user = "user"
+const TOKEN token = "token"
 
 type ContextKeys interface {
-	requestParams | requestBody | user
+	requestParams | requestBody | user | token
 }
 
 func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) *apperrors.AppError {

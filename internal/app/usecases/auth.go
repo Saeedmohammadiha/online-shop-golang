@@ -5,6 +5,7 @@ import (
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/auth"
+	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
@@ -14,6 +15,7 @@ import (
 
 type IAuthUsecases interface {
 	Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError)
+	Logout(ctx context.Context) (*dto.LogoutResponse, *apperrors.AppError)
 	Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError)
 }
 
@@ -31,6 +33,34 @@ func NewAuthUsecase(r repositories.IUserRepository, v validation.IAuthValidation
 		repository: r,
 		jwt:        j,
 	}
+}
+
+func (a *AuthUsecase) Logout(ctx context.Context) (*dto.LogoutResponse, *apperrors.AppError) {
+	//TODO: invalidate the tokens
+	var user models.User
+	err := utils.GetValueFromCtx(ctx, utils.USER, &user, a.log)
+	if err != nil {
+		a.log.Error("failed to get user form ctx")
+		return nil, apperrors.NewAuthenticationError("failed to get the user", err)
+	}
+	a.log.Debug("got the user from context",
+		"user", user,
+	)
+
+	user.AccessToken = ""
+	user.RefreshToken = ""
+	_, err = a.repository.Update(&user)
+	if err != nil {
+		return nil, err
+	}
+	a.log.Debug("deleted the tokens form db",
+		"user", user,
+	)
+	a.log.Debug("return a success response")
+
+	return &dto.LogoutResponse{
+		Message: "you are successfully loged out",
+	}, nil
 }
 
 func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError) {
