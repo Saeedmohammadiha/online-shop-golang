@@ -24,6 +24,7 @@ func responseGenerator(err *apperrors.AppError) *dto.Error {
 	if err.Tag == apperrors.AuthenticationErrorTag {
 		res.Data.Message = err.Error()
 		res.Data.Status = http.StatusUnauthorized
+		res.Data.Error = err.Err
 		return &res
 	}
 	if err.Tag == apperrors.InternalErrorTag {
@@ -33,7 +34,7 @@ func responseGenerator(err *apperrors.AppError) *dto.Error {
 		return &res
 	}
 	if err.Tag == apperrors.ValidationErrorTag {
-		res.Data.Message = err.Error()
+		res.Data.Message = err.Err.Error()
 		res.Data.Status = http.StatusBadRequest
 		res.Data.Error = err.Err
 		return &res

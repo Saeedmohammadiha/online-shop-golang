@@ -1,6 +1,6 @@
 package dto
 
-type RoleCreateRequet struct {
-	Title string
-	
+type RoleCreateRequest struct {
+	Title         string  `json:"title"`
+	PermissionIds []int   `json:"permissionIds"`
 }

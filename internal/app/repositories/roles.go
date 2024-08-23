@@ -1,57 +1,94 @@
 package repositories
 
 import (
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/models"
+	"github.com/OnlineShop/internal/pkg/logger"
 	"gorm.io/gorm"
 )
 
-type RoleRepo interface {
-	Create(Role *models.Role) (*models.Role, error)
-	Update(Role *models.Role) (*models.Role, error)
-	Delete(RoleID int) error
-	GetById(RoleID int) (*models.Role, error)
-	GetAll() ([]models.Role, error)
+type IRolesRepository interface {
+	Create(Role *models.Role) (*models.Role, *apperrors.AppError)
+	IsRoleExists(title string) (*models.Role, *apperrors.AppError)
+	Update(Role *models.Role) (*models.Role, *apperrors.AppError)
+	Delete(RoleID int) *apperrors.AppError
+	GetById(RoleID int) (*models.Role, *apperrors.AppError)
+	GetAll() ([]models.Role, *apperrors.AppError)
 }
 
-type RoleRepository struct {
-	Db *gorm.DB
+type RolesRepository struct {
+	Db  *gorm.DB
+	log logger.Ilogger
 }
 
-func NewRoleRepository(db *gorm.DB) RoleRepo {
-	return &RoleRepository{Db: db}
+func NewRolesRepository(db *gorm.DB, l logger.Ilogger) IRolesRepository {
+	l.Debug("roles Repository is created")
+	return &RolesRepository{Db: db, log: l}
 }
 
-func (repo *RoleRepository) Create(Role *models.Role) (*models.Role, error) {
+func (r *RolesRepository) IsRoleExists(title string) (*models.Role, *apperrors.AppError) {
+	var role models.Role
+	err := r.Db.Where("title = ?", title).Take(&role).Error
 
-	err := repo.Db.Create(&Role).Error
+	// response with error if already exist
 	if err != nil {
-		return nil, err
+		r.log.Error("failed to get role", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("failed to get role", err)
 	}
-	return Role, nil
+	r.log.Debug("successfully found the role", role)
+
+	return &role, nil
 }
 
-func (repo *RoleRepository) Update(Role *models.Role) (*models.Role, error) {
-	repo.Db.Model(&Role).Updates(Role)
-	return Role, nil
+func (r *RolesRepository) Create(role *models.Role) (*models.Role, *apperrors.AppError) {
+
+	err := r.Db.Create(role).Error
+	if err != nil {
+		r.log.Error("failed to create role", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("failed to create the role", err)
+	}
+	r.log.Debug("new role created", role)
+	return role, nil
 }
 
-func (repo *RoleRepository) Delete(RoleID int) error {
-	repo.Db.Where("ID = ?", RoleID).Delete(RoleID)
+func (r *RolesRepository) Update(role *models.Role) (*models.Role, *apperrors.AppError) {
+	err := r.Db.Model(role).Updates(role).Error
+	if err != nil {
+		r.log.Error("failed to update role", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("failed to update the role", err)
+	}
+	r.log.Debug("new role updated", role)
+	return role, nil
+}
+
+func (r *RolesRepository) Delete(roleId int) *apperrors.AppError {
+	err := r.Db.Where("ID = ?", roleId).Delete(roleId).Error
+	if err != nil {
+		r.log.Error("failed to delete role", "db error:", err.Error())
+		return apperrors.NewDatabaseError("failed to update the role", err)
+	}
+	r.log.Debug("role has been deleted", roleId)
 	return nil
 }
 
-func (repo *RoleRepository) GetAll() ([]models.Role, error) {
-	var Roles []models.Role
-	repo.Db.Find(&Roles)
-	var results []models.Role
-	results = append(results, Roles...)
+func (r *RolesRepository) GetAll() ([]models.Role, *apperrors.AppError) {
+	var roles []models.Role
+	if err := r.Db.Find(&roles).Error; err != nil {
+		r.log.Error("failed to get all roles", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("failed to get roles", err)
+	}
+	r.log.Debug("got the list of roles")
 
-	return results, nil
+	return roles, nil
 }
 
-func (repo *RoleRepository) GetById(RoleID int) (*models.Role, error) {
-	var result models.Role
-	//	repo.Db.Model(models.Role{ID: 10}).First(&result)
-	return &result, nil
+func (r *RolesRepository) GetById(roleID int) (*models.Role, *apperrors.AppError) {
+	var role models.Role
+	if err := r.Db.First(&role, roleID).Error; err != nil {
+		r.log.Error("failed to get role", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("failed to get role", err)
+	}
+	r.log.Debug("got the role", role)
+	return &role, nil
 
 }

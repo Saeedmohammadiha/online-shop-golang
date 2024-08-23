@@ -1,60 +1,50 @@
 package services
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	dto "github.com/OnlineShop/internal/app/dto/roles"
-	"github.com/OnlineShop/internal/app/models"
-	"github.com/OnlineShop/internal/app/repositories"
+	"github.com/OnlineShop/internal/app/usecases"
+	"github.com/OnlineShop/internal/app/utils"
+	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-type RoleService interface {
+type IRolesService interface {
 	Create(w http.ResponseWriter, r *http.Request)
 }
 
-type RS struct {
-	RoleRepo repositories.RoleRepo
+type RolesService struct {
+	rolesUsecase usecases.IRolesUsecases
+	log          logger.Ilogger
 }
 
-func NewRoleService(RoleRepo repositories.RoleRepo) RoleService {
-	return &RS{RoleRepo: RoleRepo}
+func NewRolesService(u usecases.IRolesUsecases, l logger.Ilogger) IRolesService {
+	l.Info("roles service is created")
+	return &RolesService{
+		rolesUsecase: u,
+		log:          l,
+	}
 }
 
-func (Role *RS) Create(w http.ResponseWriter, r *http.Request) {
-	//get data from the request body and convert to json
-	var newRole dto.RoleCreateRequet
-	err := json.NewDecoder(r.Body).Decode(&newRole)
+func (s *RolesService) Create(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	var requestBody dto.RoleCreateRequest
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+	}
+
+	savedRole, err := s.rolesUsecase.Create(&requestBody)
 	if err != nil {
-		//fmt.Println("fail to decode the body")
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		utils.SendErrorResponse(ctx, err, w, s.log)
 		return
 	}
 
-	// per := models.Permission{
-	// 	Title: "test",
-	// }
-	roo := models.Role{
-		Title: newRole.Title,
-		//Permissions: []models.Permission{per},
-	}
-	//create the user in db
-	role, er := Role.RoleRepo.Create(&roo)
-	if er != nil {
-		fmt.Println("faield to create user", er)
-	}
-	fmt.Println(role)
-	//convert to json
-	jsonResponse, errMarshal := json.Marshal(role)
-	if errMarshal != nil {
-		fmt.Println("fail to marshal user")
+	//convert to json and response
+	responseValue := dto.RoleCreateResponse{
+		ID:    savedRole.ID,
+		Title: savedRole.Title,
 	}
 
-	//set headers response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	//send response
-	w.Write(jsonResponse)
+	utils.SendSuccessResponse(w, &responseValue, s.log)
 }
