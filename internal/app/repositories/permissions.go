@@ -12,6 +12,7 @@ type IPermissionRepository interface {
 	Update(permission *models.Permission) (*models.Permission, *apperrors.AppError)
 	Delete(permissionID int) *apperrors.AppError
 	GetById(permissionID int) (*models.Permission, *apperrors.AppError)
+	GetByIds(permissionID []int) (*[]models.Permission, *apperrors.AppError)
 	GetAll() ([]models.Permission, *apperrors.AppError)
 	IsPermissionExists(title string) (*models.Permission, *apperrors.AppError)
 	// FindByRoleAndResource(roleId int, resourceId int) (*models.Permission, *apperrors.AppError)
@@ -26,6 +27,19 @@ type PermissionRepository struct {
 func NewPermissionRepository(db *gorm.DB, log logger.Ilogger) IPermissionRepository {
 	log.Debug("permission Repository is created")
 	return &PermissionRepository{Db: db, log: log}
+}
+
+func (r *PermissionRepository) GetByIds(permissionIds []int) (*[]models.Permission, *apperrors.AppError) {
+	var permissions []models.Permission
+	err := r.Db.Where("id IN ?", permissionIds).Find(&permissions).Error
+
+	if err != nil {
+		r.log.Error("failed to get permissions", "db error:", err.Error())
+		return nil, apperrors.NewDatabaseError("can't get the permissions", err)
+	}
+
+	r.log.Debug("successfully found the permissions", permissions)
+	return &permissions, nil
 }
 
 func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permission, *apperrors.AppError) {

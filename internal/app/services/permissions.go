@@ -33,53 +33,26 @@ func NewPermissionService(u usecases.IPermissionUsecases, l logger.Ilogger) IPer
 
 func (s *PermissionService) GetAll(w http.ResponseWriter, r *http.Request) {
 
-	//get users
+	ctx := r.Context()
+	permissions, err := s.permissionUsecase.GetAll(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// permissions, err := s.PermissionRepository.GetAll()
-	// if err != nil {
-	// 	// TODO: prepare a model for error response to envelop the response
-	// 	http.Error(w, "failed to get permissions", http.StatusBadRequest)
-	// 	s.log.Error("responded to user with failed to get permissions",
-	// 		"error from service:", err,
-	// 		"statusCode:", http.StatusBadRequest,
-	// 	)
-	// 	return
-	// }
-
-	//convert to json
-	// jsonResponse, errMarshal := json.Marshal(permissions)
-	// if errMarshal != nil {
-	// 	http.Error(w, "failed to parse json to serve", http.StatusInternalServerError)
-	// 	s.log.Error("failed to parse permissions list to json and responded to user",
-	// 		"jsonError:", errMarshal,
-	// 		"statusCode:", http.StatusInternalServerError)
-	// 	return
-	// }
-
-	s.log.Info("parsed permissions to json")
-
-	//set headers
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	//send response
-	w.Write([]byte{})
-	s.log.Info("responded to user with json file", "jsonResponse")
+	utils.SendSuccessResponse(w, &permissions, s.log)
 
 }
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// TODO: add a middleware for authenticated routes and implement it in the router to use it
-	// TODO: review the codes in the authentication section
-	// TODO: add tests and after that i think we are done with the code base
 	ctx := r.Context()
 	var requestBody permissionDto.PermissionCreateRequest
 	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
 		utils.SendErrorResponse(ctx, err, w, s.log)
 	}
 
-	savedPermission, err := s.permissionUsecase.Create(&requestBody)
+	savedPermission, err := s.permissionUsecase.Create(ctx, &requestBody)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w, s.log)
 		return
@@ -95,14 +68,52 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (service *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
+func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	permission, err := s.permissionUsecase.GetById(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
+
+	utils.SendSuccessResponse(w, &permission, s.log)
 
 }
 
-func (service *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
+func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
+
+	ctx := r.Context()
+	var requestBody permissionDto.PermissionCreateRequest
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+	}
+
+	savedPermission, err := s.permissionUsecase.Update(ctx, &requestBody)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
+
+	//convert to json and response
+	responseValue := permissionDto.PermissionCreateResponse{
+		ID:    savedPermission.ID,
+		Title: savedPermission.Title,
+	}
+
+	utils.SendSuccessResponse(w, &responseValue, s.log)
 
 }
 
-func (service *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
+func (s *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 
+	ctx := r.Context()
+	err := s.permissionUsecase.Delete(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
+
+	utils.SendSuccessResponse(w, nil, s.log)
+	
 }
