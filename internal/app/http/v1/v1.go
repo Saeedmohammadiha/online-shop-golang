@@ -13,6 +13,8 @@ func RegisterRoutes(r router.IRouter, RepositoryFactory *repositories.Repository
 
 	v1Router := r.CreateSubRouter("/v1/api")
 
+	RegisterUsersRoutes(v1Router, *RepositoryFactory, log)
+	RegisterRoleRoutes(v1Router, *RepositoryFactory, log)
 	RegisterPermissionRoutes(v1Router, *RepositoryFactory, log)
 
 }
