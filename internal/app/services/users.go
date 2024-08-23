@@ -3,7 +3,9 @@ package services
 import (
 	"net/http"
 
+	dto "github.com/OnlineShop/internal/app/dto/users"
 	"github.com/OnlineShop/internal/app/usecases"
+	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
@@ -27,240 +29,96 @@ func NewUserService(u usecases.IUserUsecase, l logger.Ilogger) IUserService {
 		UserUsecase: u,
 	}
 }
-func (u *UserService) Delete(w http.ResponseWriter, r *http.Request) {}
-func (u *UserService) GetAll(w http.ResponseWriter, r *http.Request) {
 
-	// //get users
+func (s *UserService) GetAll(w http.ResponseWriter, r *http.Request) {
 
-	// users, err := u.UserUsecase.GetAll()
-	// if err != nil {
-	// 	http.Error(w, "faild to ger users", http.StatusBadRequest)
-	// 	return
-	// }
+	ctx := r.Context()
+	permissions, err := s.UserUsecase.GetAll(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// //convert to json
-	// jsonResponse, errMarshal := json.Marshal(users)
-	// if errMarshal != nil {
-	// 	http.Error(w, "faild to parse json to serve", http.StatusBadRequest)
-	// 	return
-	// }
+	utils.SendSuccessResponse(w, &permissions, s.log)
 
-	// //set headers
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
-	// //send response
-	// w.Write(jsonResponse)
 }
 
-func (u *UserService) Create(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// //get data from the request body and convert to json
-	// var requestUser dto.CreateUserRequest
-	// err := json.NewDecoder(r.Body).Decode(&requestUser)
-	// if err != nil {
-	// 	http.Error(w, "Invalid JSON", http.StatusBadRequest)
-	// 	return
-	// }
+	ctx := r.Context()
+	var requestBody dto.CreateUserRequest
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+	}
 
-	// //validate the inputs
-	// uv := validation.NewUserValidator()
-	// errors := uv.ValidateCreateUser(requestUser)
-	// if errors != nil {
-	// 	http.Error(w, errors.Error(), http.StatusBadRequest)
-	// 	return
-	// }
+	user, err := s.UserUsecase.Create(ctx, &requestBody)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// // var roles []models.Role
-	// // if len(requestUser.RoleIDs) > 0 {
-	// // 	// Fetch roles from the database using role IDs
-	// // 	rolesOFDB, err := u.UserRepo.FindByRoleIdes(requestUser.RoleIDs)
-	// // 	if err != nil {
-	// // 		http.Error(w, "there is no role with this id", http.StatusBadRequest)
-	// // 		return
-	// // 	}
+	//convert to json and response
+	responseValue := dto.CreateUserResponse{
+		Id:          user.ID,
+		Name:        user.Name,
+		LastName:    user.LastName,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+	}
 
-	// // 	// Check if all role IDs are valid
-	// // 	if len(*rolesOFDB) != len(requestUser.RoleIDs) {
-	// // 		http.Error(w, "invalid role ids provided", http.StatusBadRequest)
-	// // 		return
-	// // 	}
+	utils.SendSuccessResponse(w, &responseValue, s.log)
 
-	// // 	roles = *rolesOFDB
-	// // }
-
-	// //hash the password
-	// hashedPass, err := utils.HashPassword(requestUser.Password)
-	// if err != nil {
-	// 	http.Error(w, "encrypting password failed", http.StatusBadRequest)
-	// 	return
-	// }
-
-	// //map the inputs to the user
-	// var newUser = models.User{
-	// 	Name:        requestUser.Name,
-	// 	LastName:    requestUser.LastName,
-	// 	PhoneNumber: requestUser.PhoneNumber,
-	// 	Email:       requestUser.Email,
-	// 	Password:    hashedPass,
-	// }
-	// // if len(roles) > 0 {
-	// // 	newUser.Roles = roles
-	// // }
-
-	// //create the user in db
-	// user, er := u.UserRepo.Create(&newUser)
-	// if er != nil {
-	// 	http.Error(w, er.Error(), http.StatusBadRequest)
-	// }
-
-	// //convert to json
-	// jsonResponse, errMarshal := json.Marshal(user)
-	// if errMarshal != nil {
-	// 	fmt.Println("fail to marshal user")
-	// }
-
-	// //set headers response
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
-	// //send response
-	// w.Write(jsonResponse)
 }
 
-func (u *UserService) GetById(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) GetById(w http.ResponseWriter, r *http.Request) {
 
-	// //get the id from uri
-	// userId := mux.Vars(r)["id"]
-	// uId, err := strconv.Atoi(userId)
-	// if err != nil {
-	// 	http.Error(w, "invalid user id", http.StatusBadRequest)
-	// 	return
-	// }
+	ctx := r.Context()
+	user, err := s.UserUsecase.GetById(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// //get the user from db
+	utils.SendSuccessResponse(w, &user, s.log)
 
-	// user, errGetUser := u.UserRepo.GetById(uId)
-	// if errGetUser != nil {
-	// 	http.Error(w, "can't get the user", http.StatusBadRequest)
-	// 	return
-	// }
-
-	// //convert the user to json
-	// jsonResponse, errMarshal := json.Marshal(&user)
-	// if errMarshal != nil {
-	// 	http.Error(w, "failed to parse json to serve", http.StatusBadRequest)
-	// 	return
-	// }
-
-	// //set response header
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
-	// //send the response
-	// w.Write(jsonResponse)
 }
 
-func (u *UserService) Update(w http.ResponseWriter, r *http.Request) {
+func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 
-	// 	//get the id from uri
-	// 	userId := mux.Vars(r)["id"]
-	// 	uId, err := strconv.Atoi(userId)
-	// 	if err != nil {
-	// 		http.Error(w, "invalid user id", http.StatusBadRequest)
-	// 		return
-	// 	}
+	ctx := r.Context()
+	var requestBody dto.CreateUserRequest
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+	}
 
-	// 	//does user exist
-	// 	_, errFInd := u.UserRepo.GetById(uId)
-	// 	if errFInd != nil {
-	// 		if err == gorm.ErrRecordNotFound {
-	// 			http.Error(w, "there is no such user", http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 	}
+	updatedUser, err := s.UserUsecase.Update(ctx, &requestBody)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// 	//get data from the request body and convert to json
-	// 	var requestUser dto.UserUpdateRequest
-	// 	err = json.NewDecoder(r.Body).Decode(&requestUser)
-	// 	if err != nil {
-	// 		//fmt.Println("fail to decode the body")
-	// 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-	// 		return
-	// 	}
+	//convert to json and response
+	responseValue := dto.CreateUserResponse{
+		Id:          updatedUser.ID,
+		Name:        updatedUser.Name,
+		LastName:    updatedUser.LastName,
+		Email:       updatedUser.Email,
+		PhoneNumber: updatedUser.PhoneNumber,
+	}
 
-	// 	//validate the inputs
-	// 	uv := validation.NewUserValidator()
-	// 	errors := uv.ValidateUpdateUser(requestUser)
-	// 	if errors != nil {
-	// 		http.Error(w, errors.Error(), http.StatusBadRequest)
-	// 		return
-	// 	}
+	utils.SendSuccessResponse(w, &responseValue, s.log)
 
-	// 	//hash the password
-	// 	var hashedPass = requestUser.Password
-	// 	if requestUser.Password != "" {
-	// 		hashedPass, err = utils.HashPassword(requestUser.Password)
-	// 		if err != nil {
-	// 			http.Error(w, "encrypting password faild", http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 	}
+}
 
-	// 	//map the inputs to the user
-	// 	var updatedUser = models.User{
-	// 		Name:        requestUser.Name,
-	// 		LastName:    requestUser.LastName,
-	// 		PhoneNumber: requestUser.PhoneNumber,
-	// 		Email:       requestUser.Email,
-	// 		Password:    hashedPass,
-	// 	}
+func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 
-	// 	// set the new sata
-	// 	_, errUpdate := u.UserRepo.Update(&updatedUser)
-	// 	if errUpdate != nil {
-	// 		http.Error(w, "can't update the user", http.StatusBadRequest)
-	// 		return
-	// 	}
+	ctx := r.Context()
+	err := s.UserUsecase.Delete(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, s.log)
+		return
+	}
 
-	// 	//set response header
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	w.WriteHeader(http.StatusOK)
-
-	// 	//send the response
-	// 	json.NewEncoder(w).Encode(updatedUser)
-	// }
-
-	// func (u *UserService) Delete(w http.ResponseWriter, r *http.Request) {
-
-	// 	//get the id from uri
-	// 	userId := mux.Vars(r)["id"]
-	// 	uId, err := strconv.Atoi(userId)
-	// 	if err != nil {
-	// 		http.Error(w, "invalid user id", http.StatusBadRequest)
-	// 		return
-	// 	}
-
-	// 	//does user exist
-	// 	user, err := u.UserRepo.GetById(uId)
-	// 	if err != nil {
-	// 		if err == gorm.ErrRecordNotFound {
-	// 			http.Error(w, "there is no such user", http.StatusBadRequest)
-	// 			return
-	// 		}
-	// 	}
-	// 	//delete the user
-	// 	err = u.UserRepo.Delete(int(user.ID))
-	// 	if err != nil {
-	// 		http.Error(w, "cant delete the user", http.StatusBadRequest)
-	// 		return
-	// 	}
-
-	// 	//set response header
-	// 	w.Header().Set("Content-Type", "application/json")
-	// 	w.WriteHeader(http.StatusOK)
-
-	// 	//send the response
-	// 	json.NewEncoder(w).Encode(models.User{})
+	utils.SendSuccessResponse(w, nil, s.log)
 
 }
