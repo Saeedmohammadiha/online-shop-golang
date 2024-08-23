@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"context"
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
@@ -9,7 +10,7 @@ import (
 )
 
 type IPermissionValidation interface {
-	ValidateCreatePermission(permission *dto.PermissionCreateRequest) *apperrors.AppError
+	ValidateCreatePermission(ctx context.Context,permission *dto.PermissionCreateRequest) *apperrors.AppError
 }
 
 type PermissionValidation struct {
@@ -20,7 +21,7 @@ func NewPermissionValidation(l logger.Ilogger) IPermissionValidation {
 	return &PermissionValidation{log: l}
 }
 
-func (v *PermissionValidation) ValidateCreatePermission(permission *dto.PermissionCreateRequest) *apperrors.AppError {
+func (v *PermissionValidation) ValidateCreatePermission(ctx context.Context,permission *dto.PermissionCreateRequest) *apperrors.AppError {
 	err := validation.ValidateStruct(permission,
 		validation.Field(&permission.Title, validation.Required.Error("you need to provide a title"), validation.Length(3, 50).Error("the title must be ableist 3 character")),
 	)

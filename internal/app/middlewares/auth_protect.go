@@ -39,7 +39,7 @@ func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.
 		}
 
 		// get the user data from the db
-		user, err := u.GetById(claims.UserID)
+		user, err := u.GetById(ctx, claims.UserID)
 		if err != nil {
 			utils.SendErrorResponse(ctx, err, w, l)
 			return

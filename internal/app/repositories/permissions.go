@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -8,13 +10,13 @@ import (
 )
 
 type IPermissionRepository interface {
-	Create(permission *models.Permission) (*models.Permission, *apperrors.AppError)
-	Update(permission *models.Permission) (*models.Permission, *apperrors.AppError)
-	Delete(permissionID int) *apperrors.AppError
-	GetById(permissionID int) (*models.Permission, *apperrors.AppError)
-	GetByIds(permissionID []int) (*[]models.Permission, *apperrors.AppError)
-	GetAll() ([]models.Permission, *apperrors.AppError)
-	IsPermissionExists(title string) (*models.Permission, *apperrors.AppError)
+	Create(ctx context.Context, permission *models.Permission) (*models.Permission, *apperrors.AppError)
+	Update(ctx context.Context, permission *models.Permission) (*models.Permission, *apperrors.AppError)
+	Delete(ctx context.Context, permissionID int) *apperrors.AppError
+	GetById(ctx context.Context, permissionID int) (*models.Permission, *apperrors.AppError)
+	GetByIds(ctx context.Context, permissionID []int) (*[]models.Permission, *apperrors.AppError)
+	GetAll(ctx context.Context, ) ([]models.Permission, *apperrors.AppError)
+	IsPermissionExists(ctx context.Context, title string) (*models.Permission, *apperrors.AppError)
 	// FindByRoleAndResource(roleId int, resourceId int) (*models.Permission, *apperrors.AppError)
 	//	FindByRoleIdes(roleIds []uint) (*[]models.Role, *apperrors.AppError)
 }
@@ -29,7 +31,7 @@ func NewPermissionRepository(db *gorm.DB, log logger.Ilogger) IPermissionReposit
 	return &PermissionRepository{Db: db, log: log}
 }
 
-func (r *PermissionRepository) GetByIds(permissionIds []int) (*[]models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) GetByIds(ctx context.Context, permissionIds []int) (*[]models.Permission, *apperrors.AppError) {
 	var permissions []models.Permission
 	err := r.Db.Where("id IN ?", permissionIds).Find(&permissions).Error
 
@@ -42,7 +44,7 @@ func (r *PermissionRepository) GetByIds(permissionIds []int) (*[]models.Permissi
 	return &permissions, nil
 }
 
-func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) IsPermissionExists(ctx context.Context, title string) (*models.Permission, *apperrors.AppError) {
 	var permission models.Permission
 	err := r.Db.Where("title = ?", title).Take(&permission).Error
 
@@ -56,7 +58,7 @@ func (r *PermissionRepository) IsPermissionExists(title string) (*models.Permiss
 	return &permission, nil
 }
 
-func (r *PermissionRepository) Create(permission *models.Permission) (*models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) Create(ctx context.Context, permission *models.Permission) (*models.Permission, *apperrors.AppError) {
 	//receive a pointer and pass the pointer to gorm create function
 	if err := r.Db.Create(permission).Error; err != nil {
 		r.log.Error("failed to create permission", "db error:", err.Error())
@@ -66,7 +68,7 @@ func (r *PermissionRepository) Create(permission *models.Permission) (*models.Pe
 	return permission, nil
 }
 
-func (r *PermissionRepository) Update(permission *models.Permission) (*models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) Update(ctx context.Context, permission *models.Permission) (*models.Permission, *apperrors.AppError) {
 	if err := r.Db.Model(permission).Updates(permission).Error; err != nil {
 		r.log.Error("failed to update permission", "db error:", err.Error())
 		return nil, apperrors.NewDatabaseError("failed to update permission", err)
@@ -75,7 +77,7 @@ func (r *PermissionRepository) Update(permission *models.Permission) (*models.Pe
 	return permission, nil
 }
 
-func (r *PermissionRepository) Delete(permissionID int) *apperrors.AppError {
+func (r *PermissionRepository) Delete(ctx context.Context, permissionID int) *apperrors.AppError {
 	if err := r.Db.Where("ID = ?", permissionID).Delete(permissionID).Error; err != nil {
 		r.log.Error("failed to delete permission", "db error:", err.Error())
 		return apperrors.NewDatabaseError("falied to delete permission", err)
@@ -84,7 +86,7 @@ func (r *PermissionRepository) Delete(permissionID int) *apperrors.AppError {
 	return nil
 }
 
-func (r *PermissionRepository) GetAll() ([]models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) GetAll(ctx context.Context, ) ([]models.Permission, *apperrors.AppError) {
 	var permissions []models.Permission
 	if err := r.Db.Find(&permissions).Error; err != nil {
 		r.log.Error("failed to get all permissions", "db error:", err.Error())
@@ -95,7 +97,7 @@ func (r *PermissionRepository) GetAll() ([]models.Permission, *apperrors.AppErro
 	return permissions, nil
 }
 
-func (r *PermissionRepository) GetById(permissionID int) (*models.Permission, *apperrors.AppError) {
+func (r *PermissionRepository) GetById(ctx context.Context, permissionID int) (*models.Permission, *apperrors.AppError) {
 	var permission models.Permission
 	if err := r.Db.First(&permission, permissionID).Error; err != nil {
 		r.log.Error("failed to get permission", "db error:", err.Error())

@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"context"
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/auth"
@@ -11,7 +12,7 @@ import (
 )
 
 type IAuthValidation interface {
-	ValidateLogin(requestData *dto.LoginRequest) *apperrors.AppError
+	ValidateLogin(ctx context.Context,requestData *dto.LoginRequest) *apperrors.AppError
 }
 
 type AuthValidation struct {
@@ -24,7 +25,7 @@ func NewAuthValidation(l logger.Ilogger) IAuthValidation {
 	}
 }
 
-func (v *AuthValidation) ValidateLogin(requestData *dto.LoginRequest) *apperrors.AppError {
+func (v *AuthValidation) ValidateLogin(ctx context.Context,requestData *dto.LoginRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(requestData,
 		validation.Field(&requestData.Email, validation.Required.Error("you must provide the email"), is.Email.Error("the email is invalid")),

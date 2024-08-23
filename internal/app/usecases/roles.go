@@ -52,7 +52,7 @@ func (u *RolesUsecases) Delete(ctx context.Context) *apperrors.AppError {
 		return apperrors.NewBadRequestError("you need to pass the id", err)
 	}
 
-	err = u.repository.Delete(roleId)
+	err = u.repository.Delete(ctx, roleId)
 	if err != nil {
 		return err
 	}
@@ -61,7 +61,7 @@ func (u *RolesUsecases) Delete(ctx context.Context) *apperrors.AppError {
 }
 
 func (u *RolesUsecases) GetAll(ctx context.Context) (*[]models.Role, *apperrors.AppError) {
-	roles, err := u.repository.GetAll()
+	roles, err := u.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (u *RolesUsecases) GetById(ctx context.Context) (*models.Role, *apperrors.A
 		return nil, apperrors.NewBadRequestError("you need to pass the id", err)
 	}
 
-	role, err := u.repository.GetById(roleId)
+	role, err := u.repository.GetById(ctx, roleId)
 	if err != nil {
 		return nil, err
 	}
@@ -89,28 +89,28 @@ func (u *RolesUsecases) GetById(ctx context.Context) (*models.Role, *apperrors.A
 }
 
 func (u *RolesUsecases) Update(ctx context.Context, data *dto.RoleCreateRequest) (*models.Role, *apperrors.AppError) {
-	if err := u.validator.ValidateCreateRole(data); err != nil {
+	if err := u.validator.ValidateCreateRole(ctx,data); err != nil {
 		return nil, err
 	}
 
-	permissions, err := u.permissionsRepository.GetByIds(data.PermissionIds)
+	permissions, err := u.permissionsRepository.GetByIds(ctx, data.PermissionIds)
 	if err != nil {
 		return nil, err
 	}
 
 	updatedRole := models.Role{Title: data.Title, Permissions: *permissions}
-	if _, err := u.repository.Create(&updatedRole); err != nil {
+	if _, err := u.repository.Create(ctx, &updatedRole); err != nil {
 		return nil, err
 	}
 	return &updatedRole, nil
 }
 
 func (u *RolesUsecases) Create(ctx context.Context, data *dto.RoleCreateRequest) (*models.Role, *apperrors.AppError) {
-	if err := u.validator.ValidateCreateRole(data); err != nil {
+	if err := u.validator.ValidateCreateRole(ctx,data); err != nil {
 		return nil, err
 	}
 
-	if _, err := u.repository.IsRoleExists(data.Title); err != nil {
+	if _, err := u.repository.IsRoleExists(ctx, data.Title); err != nil {
 		// return nil, err
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -119,13 +119,13 @@ func (u *RolesUsecases) Create(ctx context.Context, data *dto.RoleCreateRequest)
 
 	}
 
-	permissions, err := u.permissionsRepository.GetByIds(data.PermissionIds)
+	permissions, err := u.permissionsRepository.GetByIds(ctx, data.PermissionIds)
 	if err != nil {
 		return nil, err
 	}
 
 	newRole := models.Role{Title: data.Title, Permissions: *permissions}
-	if _, err := u.repository.Create(&newRole); err != nil {
+	if _, err := u.repository.Create(ctx, &newRole); err != nil {
 		return nil, err
 	}
 

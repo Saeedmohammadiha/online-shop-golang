@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -8,12 +10,12 @@ import (
 )
 
 type IUserRepository interface {
-	Create(user *models.User) (*models.User, *apperrors.AppError)
-	Update(user *models.User) (*models.User, *apperrors.AppError)
-	Delete(userID int) *apperrors.AppError
-	GetById(userID int) (*models.User, *apperrors.AppError)
-	GetAll() (*[]models.User, *apperrors.AppError)
-	IsUserExists(email string) (*models.User, *apperrors.AppError)
+	Create(ctx context.Context, user *models.User) (*models.User, *apperrors.AppError)
+	Update(ctx context.Context, user *models.User) (*models.User, *apperrors.AppError)
+	Delete(ctx context.Context, userID int) *apperrors.AppError
+	GetById(ctx context.Context, userID int) (*models.User, *apperrors.AppError)
+	GetAll(ctx context.Context, ) (*[]models.User, *apperrors.AppError)
+	IsUserExists(ctx context.Context, email string) (*models.User, *apperrors.AppError)
 
 	//	FindByRoleIdes(roleIds []uint) (*[]models.Role, error)
 }
@@ -28,7 +30,7 @@ func NewUserRepository(db *gorm.DB, l logger.Ilogger) IUserRepository {
 	return &UserRepository{Db: db, log: l}
 }
 
-func (r *UserRepository) IsUserExists(email string) (*models.User, *apperrors.AppError) {
+func (r *UserRepository) IsUserExists(ctx context.Context, email string) (*models.User, *apperrors.AppError) {
 
 	var user models.User
 	err := r.Db.Where("email = ?", email).Take(&user).Error
@@ -47,7 +49,7 @@ func (r *UserRepository) IsUserExists(email string) (*models.User, *apperrors.Ap
 
 }
 
-func (r *UserRepository) Create(user *models.User) (*models.User, *apperrors.AppError) {
+func (r *UserRepository) Create(ctx context.Context, user *models.User) (*models.User, *apperrors.AppError) {
 	if err := r.Db.Create(user).Error; err != nil {
 		r.log.Error("failed to create user",
 			"db error:", err.Error(),
@@ -61,7 +63,7 @@ func (r *UserRepository) Create(user *models.User) (*models.User, *apperrors.App
 	return user, nil
 }
 
-func (r *UserRepository) Update(user *models.User) (*models.User, *apperrors.AppError) {
+func (r *UserRepository) Update(ctx context.Context, user *models.User) (*models.User, *apperrors.AppError) {
 	if err := r.Db.Model(user).Updates(user).Error; err != nil {
 		r.log.Error("failed to update user",
 			"db error:", err.Error(),
@@ -75,7 +77,7 @@ func (r *UserRepository) Update(user *models.User) (*models.User, *apperrors.App
 	return user, nil
 }
 
-func (r *UserRepository) Delete(userID int) *apperrors.AppError {
+func (r *UserRepository) Delete(ctx context.Context, userID int) *apperrors.AppError {
 	if err := r.Db.Where("ID = ?", userID).Delete(userID).Error; err != nil {
 		r.log.Error("failed to delete user",
 			"db error:", err.Error(),
@@ -89,7 +91,7 @@ func (r *UserRepository) Delete(userID int) *apperrors.AppError {
 	return nil
 }
 
-func (r *UserRepository) GetAll() (*[]models.User, *apperrors.AppError) {
+func (r *UserRepository) GetAll(ctx context.Context, ) (*[]models.User, *apperrors.AppError) {
 	var users []models.User
 	if err := r.Db.Find(&users).Error; err != nil {
 		r.log.Error("failed to get users",
@@ -104,7 +106,7 @@ func (r *UserRepository) GetAll() (*[]models.User, *apperrors.AppError) {
 	return &users, nil
 }
 
-func (r *UserRepository) GetById(userID int) (*models.User, *apperrors.AppError) {
+func (r *UserRepository) GetById(ctx context.Context, userID int) (*models.User, *apperrors.AppError) {
 	var user models.User
 	if err := r.Db.First(&user, userID).Error; err != nil {
 		r.log.Error("failed to find user",

@@ -49,7 +49,7 @@ func (u *PermissionUsecase) GetById(ctx context.Context) (*models.Permission, *a
 		return nil, apperrors.NewBadRequestError("you need to pass the id", err)
 	}
 
-	permission, err := u.repository.GetById(permissionId)
+	permission, err := u.repository.GetById(ctx, permissionId)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (u *PermissionUsecase) GetById(ctx context.Context) (*models.Permission, *a
 }
 
 func (u *PermissionUsecase) GetAll(ctx context.Context) (*[]models.Permission, *apperrors.AppError) {
-	permissions, err := u.repository.GetAll()
+	permissions, err := u.repository.GetAll(ctx)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (u *PermissionUsecase) Delete(ctx context.Context) *apperrors.AppError {
 		return apperrors.NewBadRequestError("you need to pass the id", err)
 	}
 
-	err = u.repository.Delete(permissionId)
+	err = u.repository.Delete(ctx, permissionId)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (u *PermissionUsecase) Delete(ctx context.Context) *apperrors.AppError {
 func (u *PermissionUsecase) Update(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError) {
 	// TODO:needs to add validation
 	updatedPermission := models.Permission{Title: data.Title}
-	if _, err := u.repository.Update(&updatedPermission); err != nil {
+	if _, err := u.repository.Update(ctx, &updatedPermission); err != nil {
 		return nil, err
 	}
 	return &updatedPermission, nil
@@ -98,11 +98,11 @@ func (u *PermissionUsecase) Update(ctx context.Context, data *dto.PermissionCrea
 
 func (u *PermissionUsecase) Create(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError) {
 
-	if err := u.validator.ValidateCreatePermission(data); err != nil {
+	if err := u.validator.ValidateCreatePermission(ctx,data); err != nil {
 		return nil, err
 	}
 
-	if _, err := u.repository.IsPermissionExists(data.Title); err != nil {
+	if _, err := u.repository.IsPermissionExists(ctx, data.Title); err != nil {
 		// return nil, err
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -112,7 +112,7 @@ func (u *PermissionUsecase) Create(ctx context.Context, data *dto.PermissionCrea
 	}
 
 	savedPermission := models.Permission{Title: data.Title}
-	if _, err := u.repository.Create(&savedPermission); err != nil {
+	if _, err := u.repository.Create(ctx, &savedPermission); err != nil {
 		return nil, err
 	}
 

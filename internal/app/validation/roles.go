@@ -1,6 +1,8 @@
 package validation
 
 import (
+	"context"
+
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/roles"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -8,7 +10,7 @@ import (
 )
 
 type IRolesValidation interface {
-	ValidateCreateRole(role *dto.RoleCreateRequest) *apperrors.AppError
+	ValidateCreateRole(ctx context.Context, role *dto.RoleCreateRequest) *apperrors.AppError
 }
 
 type RolesValidation struct {
@@ -19,7 +21,7 @@ func NewRolesValidation(l logger.Ilogger) IRolesValidation {
 	return &RolesValidation{log: l}
 }
 
-func (v *RolesValidation) ValidateCreateRole(role *dto.RoleCreateRequest) *apperrors.AppError {
+func (v *RolesValidation) ValidateCreateRole(ctx context.Context, role *dto.RoleCreateRequest) *apperrors.AppError {
 	err := validation.ValidateStruct(role,
 		validation.Field(&role.Title, validation.Required.Error("you need to provide a title"), validation.Length(3, 50).Error("the title must be ableist 3 character")),
 		validation.Field(&role.PermissionIds, validation.Required.Error("you need to provide at least one permission")),

@@ -49,7 +49,7 @@ func (a *AuthUsecase) Logout(ctx context.Context) (*dto.LogoutResponse, *apperro
 
 	user.AccessToken = ""
 	user.RefreshToken = ""
-	_, err = a.repository.Update(&user)
+	_, err = a.repository.Update(ctx, &user)
 	if err != nil {
 		return nil, err
 	}
@@ -70,12 +70,12 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors
 		return nil, err
 	}
 	//validate the inputs
-	if err := a.validator.ValidateLogin(&requestBody); err != nil {
+	if err := a.validator.ValidateLogin(ctx,&requestBody); err != nil {
 		return nil, err
 	}
 
 	//is there a user
-	user, err := a.repository.IsUserExists(requestBody.Email)
+	user, err := a.repository.IsUserExists(ctx, requestBody.Email)
 	if err != nil {
 		a.log.Error("there is no user with this email",
 			"data", requestBody,
@@ -132,7 +132,7 @@ func (a *AuthUsecase) Refresh(ctx context.Context) (*dto.RefreshResponse, *apper
 	}
 
 	//check if the token is the same stored in the db
-	user, err := a.repository.GetById(claims.UserID)
+	user, err := a.repository.GetById(ctx, claims.UserID)
 	if user.RefreshToken != requestBody.RefreshToken {
 		//generate new error
 		return nil, err

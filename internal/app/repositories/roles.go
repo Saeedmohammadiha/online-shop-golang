@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -8,12 +10,12 @@ import (
 )
 
 type IRolesRepository interface {
-	Create(Role *models.Role) (*models.Role, *apperrors.AppError)
-	IsRoleExists(title string) (*models.Role, *apperrors.AppError)
-	Update(Role *models.Role) (*models.Role, *apperrors.AppError)
-	Delete(RoleID int) *apperrors.AppError
-	GetById(RoleID int) (*models.Role, *apperrors.AppError)
-	GetAll() ([]models.Role, *apperrors.AppError)
+	Create(ctx context.Context, Role *models.Role) (*models.Role, *apperrors.AppError)
+	IsRoleExists(ctx context.Context, title string) (*models.Role, *apperrors.AppError)
+	Update(ctx context.Context, Role *models.Role) (*models.Role, *apperrors.AppError)
+	Delete(ctx context.Context, RoleID int) *apperrors.AppError
+	GetById(ctx context.Context, RoleID int) (*models.Role, *apperrors.AppError)
+	GetAll(ctx context.Context, ) ([]models.Role, *apperrors.AppError)
 }
 
 type RolesRepository struct {
@@ -26,7 +28,7 @@ func NewRolesRepository(db *gorm.DB, l logger.Ilogger) IRolesRepository {
 	return &RolesRepository{Db: db, log: l}
 }
 
-func (r *RolesRepository) IsRoleExists(title string) (*models.Role, *apperrors.AppError) {
+func (r *RolesRepository) IsRoleExists(ctx context.Context, title string) (*models.Role, *apperrors.AppError) {
 	var role models.Role
 	err := r.Db.Where("title = ?", title).Take(&role).Error
 
@@ -40,7 +42,7 @@ func (r *RolesRepository) IsRoleExists(title string) (*models.Role, *apperrors.A
 	return &role, nil
 }
 
-func (r *RolesRepository) Create(role *models.Role) (*models.Role, *apperrors.AppError) {
+func (r *RolesRepository) Create(ctx context.Context, role *models.Role) (*models.Role, *apperrors.AppError) {
 
 	err := r.Db.Create(role).Error
 	if err != nil {
@@ -51,7 +53,7 @@ func (r *RolesRepository) Create(role *models.Role) (*models.Role, *apperrors.Ap
 	return role, nil
 }
 
-func (r *RolesRepository) Update(role *models.Role) (*models.Role, *apperrors.AppError) {
+func (r *RolesRepository) Update(ctx context.Context, role *models.Role) (*models.Role, *apperrors.AppError) {
 	err := r.Db.Model(role).Updates(role).Error
 	if err != nil {
 		r.log.Error("failed to update role", "db error:", err.Error())
@@ -61,7 +63,7 @@ func (r *RolesRepository) Update(role *models.Role) (*models.Role, *apperrors.Ap
 	return role, nil
 }
 
-func (r *RolesRepository) Delete(roleId int) *apperrors.AppError {
+func (r *RolesRepository) Delete(ctx context.Context, roleId int) *apperrors.AppError {
 	err := r.Db.Where("ID = ?", roleId).Delete(roleId).Error
 	if err != nil {
 		r.log.Error("failed to delete role", "db error:", err.Error())
@@ -71,7 +73,7 @@ func (r *RolesRepository) Delete(roleId int) *apperrors.AppError {
 	return nil
 }
 
-func (r *RolesRepository) GetAll() ([]models.Role, *apperrors.AppError) {
+func (r *RolesRepository) GetAll(ctx context.Context, ) ([]models.Role, *apperrors.AppError) {
 	var roles []models.Role
 	if err := r.Db.Find(&roles).Error; err != nil {
 		r.log.Error("failed to get all roles", "db error:", err.Error())
@@ -82,7 +84,7 @@ func (r *RolesRepository) GetAll() ([]models.Role, *apperrors.AppError) {
 	return roles, nil
 }
 
-func (r *RolesRepository) GetById(roleID int) (*models.Role, *apperrors.AppError) {
+func (r *RolesRepository) GetById(ctx context.Context, roleID int) (*models.Role, *apperrors.AppError) {
 	var role models.Role
 	if err := r.Db.First(&role, roleID).Error; err != nil {
 		r.log.Error("failed to get role", "db error:", err.Error())

@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"context"
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/users"
@@ -11,8 +12,8 @@ import (
 )
 
 type IUserValidation interface {
-	ValidateCreateUser(r dto.CreateUserRequest) *apperrors.AppError
-	ValidateUpdateUser(r dto.UserUpdateRequest) *apperrors.AppError
+	ValidateCreateUser(ctx context.Context, vr dto.CreateUserRequest) *apperrors.AppError
+	ValidateUpdateUser(ctx context.Context, r dto.UserUpdateRequest) *apperrors.AppError
 }
 
 type UserValidation struct {
@@ -25,7 +26,7 @@ func NewUserValidator(l logger.Ilogger) IUserValidation {
 	}
 }
 
-func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) *apperrors.AppError {
+func (v *UserValidation) ValidateCreateUser(ctx context.Context, r dto.CreateUserRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
@@ -43,7 +44,7 @@ func (v *UserValidation) ValidateCreateUser(r dto.CreateUserRequest) *apperrors.
 
 }
 
-func (v *UserValidation) ValidateUpdateUser(r dto.UserUpdateRequest) *apperrors.AppError {
+func (v *UserValidation) ValidateUpdateUser(ctx context.Context, r dto.UserUpdateRequest) *apperrors.AppError {
 
 	err := validation.ValidateStruct(&r,
 		validation.Field(&r.Name, validation.Length(3, 20).Error("the name must be between and 20 characters")),
