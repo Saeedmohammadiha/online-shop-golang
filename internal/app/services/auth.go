@@ -11,6 +11,7 @@ import (
 
 type IAuthService interface {
 	Login(w http.ResponseWriter, r *http.Request)
+	Logout(w http.ResponseWriter, r *http.Request)
 	Refresh(w http.ResponseWriter, r *http.Request)
 }
 type AuthService struct {
@@ -25,6 +26,18 @@ func NewAuthService(u usecases.IAuthUsecases, l logger.Ilogger) IAuthService {
 		authUsecase: u,
 		log:         l,
 	}
+}
+
+func (a *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	response, err := a.authUsecase.Logout(ctx)
+	if err != nil {
+		utils.SendErrorResponse(ctx, err, w, a.log)
+		return
+	}
+
+	utils.SendSuccessResponse(w, response, a.log)
+
 }
 
 func (a *AuthService) Login(w http.ResponseWriter, r *http.Request) {
