@@ -18,8 +18,12 @@ func GuardRoute(f func(w http.ResponseWriter, r *http.Request), routePermissions
 	return func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		user := models.User{}
-		utils.GetValueFromCtx(ctx, utils.USER, &user, l)
-
+		err := utils.GetValueFromCtx(ctx, utils.USER, &user, l)
+		if err != nil {
+			err := apperrors.NewAuthorizationError("you do not have access", err)
+			utils.SendErrorResponse(ctx, err, w, l)
+			return
+		}
 		// Convert routePermissions to a map for O(1) lookup
 		routePermissionsMap := make(map[string]struct{}, len(routePermissions))
 		for _, perm := range routePermissions {

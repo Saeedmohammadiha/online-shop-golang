@@ -22,6 +22,13 @@ type ContextKeys interface {
 
 func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) *apperrors.AppError {
 	rawValue := ctx.Value(key)
+	if rawValue == nil {
+		l.Error("there is no value in the context with this key",
+			"key", key,
+			"value", rawValue,
+		)
+		return apperrors.NewInternalError("there is no value in context", nil)
+	}
 	if err := ConvertCtxValueToStruct(&rawValue, valueContainer, l); err != nil {
 		return err
 	}
