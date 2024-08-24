@@ -30,7 +30,9 @@ type RolesUsecases struct {
 	permissionsRepository repositories.IPermissionRepository
 }
 
-func NewRolesUsecases(r repositories.IRolesRepository, pr repositories.IPermissionRepository, v validation.IRolesValidation, l logger.Ilogger) IRolesUsecases {
+func NewRolesUsecases(r repositories.IRolesRepository, pr repositories.IPermissionRepository, v validation.IRolesValidation) IRolesUsecases {
+	l := logger.Logger()
+	l.Debug("new role usecase is created")
 	return &RolesUsecases{
 		log:                   l,
 		validator:             v,
@@ -42,7 +44,7 @@ func NewRolesUsecases(r repositories.IRolesRepository, pr repositories.IPermissi
 func (u *RolesUsecases) Delete(ctx context.Context) *apperrors.AppError {
 
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return apperrors.NewBadRequestError("there is no param", err)
 	}
@@ -71,7 +73,7 @@ func (u *RolesUsecases) GetAll(ctx context.Context) (*[]models.Role, *apperrors.
 
 func (u *RolesUsecases) GetById(ctx context.Context) (*models.Role, *apperrors.AppError) {
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return nil, apperrors.NewBadRequestError("there is no param", err)
 	}
@@ -89,7 +91,7 @@ func (u *RolesUsecases) GetById(ctx context.Context) (*models.Role, *apperrors.A
 }
 
 func (u *RolesUsecases) Update(ctx context.Context, data *dto.RoleCreateRequest) (*models.Role, *apperrors.AppError) {
-	if err := u.validator.ValidateCreateRole(ctx,data); err != nil {
+	if err := u.validator.ValidateCreateRole(ctx, data); err != nil {
 		return nil, err
 	}
 
@@ -106,7 +108,7 @@ func (u *RolesUsecases) Update(ctx context.Context, data *dto.RoleCreateRequest)
 }
 
 func (u *RolesUsecases) Create(ctx context.Context, data *dto.RoleCreateRequest) (*models.Role, *apperrors.AppError) {
-	if err := u.validator.ValidateCreateRole(ctx,data); err != nil {
+	if err := u.validator.ValidateCreateRole(ctx, data); err != nil {
 		return nil, err
 	}
 

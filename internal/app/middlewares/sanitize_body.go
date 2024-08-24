@@ -16,34 +16,35 @@ import (
 // SanitizeMiddleware sanitizes incoming JSON requests
 func (m *Middlewares) SanitizeBodyMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log := logger.Logger()
 		if r.Method == http.MethodPost || r.Method == http.MethodPut {
 
 			var data map[string]interface{}
 
 			if r.Body == nil {
-				m.log.Info("body is empty pass next handler")
+				log.Info("body is empty pass next handler")
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			// Decode the request body into the struct
 			if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-				m.log.Error("invalid json, sent error to user",
+				log.Error("invalid json, sent error to user",
 					"status code", http.StatusBadRequest,
 					"error", err,
 				)
 
-				utils.SendErrorResponse(r.Context(), apperrors.NewBadRequestError("invalid json", err), w, m.log)
+				utils.SendErrorResponse(r.Context(), apperrors.NewBadRequestError("invalid json", err), w)
 
 				return
 			}
 
-			sanitizedData := sanitizeData(&data, m.log)
+			sanitizedData := sanitizeData(&data, log)
 
 			// Create a new context with sanitized data
 			ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, sanitizedData)
 			r = r.WithContext(ctx)
-			m.log.Info("add the sanitized data to the context and pass to next handler", "body data", sanitizedData)
+			log.Info("add the sanitized data to the context and pass to next handler", "body data", sanitizedData)
 
 			// Continue with the next handler
 			next.ServeHTTP(w, r)

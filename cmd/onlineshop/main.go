@@ -14,19 +14,19 @@ import (
 
 func main() {
 	
-	Log := logger.New()
+	Log := logger.Logger()
 	defer Log.Sync()
 
-	db := initDb.MysqlDatabaseConnection(Log)
-	RepositoryFactory := repositories.NewRepositoryFactory(db, Log)
+	db := initDb.MysqlDatabaseConnection()
+	RepositoryFactory := repositories.NewRepositoryFactory(db)
 
-	appRouter := router.New(Log)
-	middles := middlewares.New(Log)
+	appRouter := router.New()
+	middles := middlewares.New()
 	appRouter.Use(middles.SanitizeURLParamsMiddleware)
 	appRouter.Use(middles.SanitizeBodyMiddleware)
 
 	// register routes
-	v1.RegisterRoutes(appRouter, RepositoryFactory, Log)
+	v1.RegisterRoutes(appRouter, RepositoryFactory)
 
 	appRouter.Serve(":5000")
 

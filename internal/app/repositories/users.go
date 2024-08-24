@@ -25,7 +25,8 @@ type UserRepository struct {
 	log logger.Ilogger
 }
 
-func NewUserRepository(db *gorm.DB, l logger.Ilogger) IUserRepository {
+func NewUserRepository(db *gorm.DB) IUserRepository {
+	l := logger.Logger()
 	l.Info("new user Repository is created")
 	return &UserRepository{Db: db, log: l}
 }

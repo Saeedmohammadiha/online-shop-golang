@@ -20,7 +20,9 @@ type UserValidation struct {
 	log logger.Ilogger
 }
 
-func NewUserValidator(l logger.Ilogger) IUserValidation {
+func NewUserValidator() IUserValidation {
+	l := logger.Logger()
+	l.Debug("new user validation is created")
 	return &UserValidation{
 		log: l,
 	}

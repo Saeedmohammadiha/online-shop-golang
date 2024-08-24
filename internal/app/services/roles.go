@@ -22,7 +22,8 @@ type RolesService struct {
 	log          logger.Ilogger
 }
 
-func NewRolesService(u usecases.IRolesUsecases, l logger.Ilogger) IRolesService {
+func NewRolesService(u usecases.IRolesUsecases) IRolesService {
+	l := logger.Logger()
 	l.Info("roles service is created")
 	return &RolesService{
 		rolesUsecase: u,
@@ -35,11 +36,11 @@ func (s *RolesService) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	permissions, err := s.rolesUsecase.GetAll(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &permissions, s.log)
+	utils.SendSuccessResponse(w, &permissions)
 
 }
 
@@ -48,11 +49,11 @@ func (s *RolesService) GetById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	permission, err := s.rolesUsecase.GetById(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &permission, s.log)
+	utils.SendSuccessResponse(w, &permission)
 
 }
 
@@ -60,13 +61,13 @@ func (s *RolesService) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody dto.RoleCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	savedRole, err := s.rolesUsecase.Create(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -82,20 +83,20 @@ func (s *RolesService) Create(w http.ResponseWriter, r *http.Request) {
 		Permissions: permissionsTitle,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 }
 
 func (s *RolesService) Update(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody dto.RoleCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	updatedRole, err := s.rolesUsecase.Update(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -110,7 +111,7 @@ func (s *RolesService) Update(w http.ResponseWriter, r *http.Request) {
 		Permissions: permissionsTitle,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 
 }
 
@@ -119,10 +120,10 @@ func (s *RolesService) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	err := s.rolesUsecase.Delete(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, nil, s.log)
+	utils.SendSuccessResponse(w, nil)
 
 }

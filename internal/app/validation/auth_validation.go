@@ -19,7 +19,9 @@ type AuthValidation struct {
 	log logger.Ilogger
 }
 
-func NewAuthValidation(l logger.Ilogger) IAuthValidation {
+func NewAuthValidation() IAuthValidation {
+	l := logger.Logger()
+	l.Debug("new auth validation is created")
 	return &AuthValidation{
 		log: l,
 	}

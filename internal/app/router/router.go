@@ -25,11 +25,12 @@ type MuxRouter struct {
 	log    logger.Ilogger
 }
 
-func New(log logger.Ilogger) IRouter {
-	log.Info("router is created")
+func New() IRouter {
+	l := logger.Logger()
+	l.Info("router is created")
 	return &MuxRouter{
 		Router: mux.NewRouter(),
-		log:    log,
+		log:    l,
 	}
 }
 

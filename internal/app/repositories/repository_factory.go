@@ -11,12 +11,12 @@ type RepositoryFactory struct {
 	RolesRepository      IRolesRepository
 }
 
-func NewRepositoryFactory(db *gorm.DB, log logger.Ilogger) *RepositoryFactory {
-	log.Info("repository factory is created")
+func NewRepositoryFactory(db *gorm.DB) *RepositoryFactory {
+	logger.Logger().Info("repository factory is created")
 	return &RepositoryFactory{
-		PermissionRepository: NewPermissionRepository(db, log),
-		UserRepository:       NewUserRepository(db, log),
-		RolesRepository:      NewRolesRepository(db, log),
+		PermissionRepository: NewPermissionRepository(db),
+		UserRepository:       NewUserRepository(db),
+		RolesRepository:      NewRolesRepository(db),
 	}
 
 }

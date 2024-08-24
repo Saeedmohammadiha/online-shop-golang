@@ -23,7 +23,8 @@ type RolesRepository struct {
 	log logger.Ilogger
 }
 
-func NewRolesRepository(db *gorm.DB, l logger.Ilogger) IRolesRepository {
+func NewRolesRepository(db *gorm.DB) IRolesRepository {
+	l := logger.Logger()
 	l.Debug("roles Repository is created")
 	return &RolesRepository{Db: db, log: l}
 }

@@ -29,7 +29,9 @@ type PermissionUsecase struct {
 	repository repositories.IPermissionRepository
 }
 
-func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPermissionValidation, l logger.Ilogger) IPermissionUsecases {
+func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPermissionValidation) IPermissionUsecases {
+	l := logger.Logger()
+	l.Debug("new permission usecase is created")
 	return &PermissionUsecase{
 		log:        l,
 		validator:  v,
@@ -39,7 +41,7 @@ func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPe
 
 func (u *PermissionUsecase) GetById(ctx context.Context) (*models.Permission, *apperrors.AppError) {
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return nil, apperrors.NewBadRequestError("there is no param", err)
 	}
@@ -68,7 +70,7 @@ func (u *PermissionUsecase) GetAll(ctx context.Context) (*[]models.Permission, *
 
 func (u *PermissionUsecase) Delete(ctx context.Context) *apperrors.AppError {
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return apperrors.NewBadRequestError("there is no param", err)
 	}

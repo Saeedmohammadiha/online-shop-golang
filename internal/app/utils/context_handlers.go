@@ -22,7 +22,8 @@ type ContextKeys interface {
 	requestParams | requestBody | user | token
 }
 
-func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U, l logger.Ilogger) *apperrors.AppError {
+func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U) *apperrors.AppError {
+	l := logger.Logger()
 	rawValue := ctx.Value(key)
 	if rawValue == nil {
 		l.Error("there is no value in the context with this key",
@@ -31,13 +32,14 @@ func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, v
 		)
 		return apperrors.NewInternalError("there is no value in context", nil)
 	}
-	if err := ConvertCtxValueToStruct(&rawValue, valueContainer, l); err != nil {
+	if err := ConvertCtxValueToStruct(&rawValue, valueContainer); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ConvertCtxValueToStruct[T interface{}](value *any, variable *T, l logger.Ilogger) *apperrors.AppError {
+func ConvertCtxValueToStruct[T interface{}](value *any, variable *T) *apperrors.AppError {
+	l := logger.Logger()
 	jsonRequestBody, err := json.Marshal(value)
 	if err != nil {
 		l.Error("unable to convert the ctx data to json:",

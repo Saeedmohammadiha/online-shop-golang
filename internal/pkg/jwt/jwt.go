@@ -24,7 +24,9 @@ type JwtToken struct {
 	log logger.Ilogger
 }
 
-func New(l logger.Ilogger) IJwtToken {
+func New() IJwtToken {
+	l := logger.Logger()
+	l.Debug(" new jwt module is created")
 	return &JwtToken{
 		log: l,
 	}

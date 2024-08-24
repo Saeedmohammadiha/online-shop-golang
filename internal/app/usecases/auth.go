@@ -26,7 +26,9 @@ type AuthUsecase struct {
 	repository repositories.IUserRepository
 }
 
-func NewAuthUsecase(r repositories.IUserRepository, v validation.IAuthValidation, j internaljwt.IJwtToken, l logger.Ilogger) IAuthUsecases {
+func NewAuthUsecase(r repositories.IUserRepository, v validation.IAuthValidation, j internaljwt.IJwtToken) IAuthUsecases {
+	l := logger.Logger()
+	l.Debug("new auth usecase in created")
 	return &AuthUsecase{
 		log:        l,
 		validator:  v,
@@ -38,7 +40,7 @@ func NewAuthUsecase(r repositories.IUserRepository, v validation.IAuthValidation
 func (a *AuthUsecase) Logout(ctx context.Context) (*dto.LogoutResponse, *apperrors.AppError) {
 	//TODO: invalidate the tokens
 	var user models.User
-	err := utils.GetValueFromCtx(ctx, utils.USER, &user, a.log)
+	err := utils.GetValueFromCtx(ctx, utils.USER, &user)
 	if err != nil {
 		a.log.Error("failed to get user form ctx")
 		return nil, apperrors.NewAuthenticationError("failed to get the user", err)
@@ -66,7 +68,7 @@ func (a *AuthUsecase) Logout(ctx context.Context) (*dto.LogoutResponse, *apperro
 func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError) {
 
 	var requestBody dto.LoginRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, a.log); err != nil {
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
 		return nil, err
 	}
 	//validate the inputs
@@ -96,7 +98,7 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors
 	}
 
 	//return token and login the user
-	tokeGenerator := internaljwt.New(a.log)
+	tokeGenerator := internaljwt.New()
 	accessToken, err := tokeGenerator.GenerateAccessToken(int(user.ID))
 	if err != nil {
 		return nil, err
@@ -119,7 +121,7 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors
 func (a *AuthUsecase) Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError) {
 
 	var requestBody dto.RefreshRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, a.log); err != nil {
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
 		// utils.SendErrorResponse(ctx, err, w, a.log)
 		return nil, err
 	}

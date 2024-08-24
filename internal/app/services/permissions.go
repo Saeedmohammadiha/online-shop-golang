@@ -23,7 +23,8 @@ type PermissionService struct {
 	log               logger.Ilogger
 }
 
-func NewPermissionService(u usecases.IPermissionUsecases, l logger.Ilogger) IPermissionService {
+func NewPermissionService(u usecases.IPermissionUsecases) IPermissionService {
+	l := logger.Logger()
 	l.Info("permission service is created")
 	return &PermissionService{
 		permissionUsecase: u,
@@ -36,11 +37,11 @@ func (s *PermissionService) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	permissions, err := s.permissionUsecase.GetAll(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &permissions, s.log)
+	utils.SendSuccessResponse(w, &permissions)
 
 }
 
@@ -48,13 +49,13 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody permissionDto.PermissionCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	savedPermission, err := s.permissionUsecase.Create(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -64,7 +65,7 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 		Title: savedPermission.Title,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 
 }
 
@@ -73,11 +74,11 @@ func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	permission, err := s.permissionUsecase.GetById(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &permission, s.log)
+	utils.SendSuccessResponse(w, &permission)
 
 }
 
@@ -85,13 +86,13 @@ func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody permissionDto.PermissionCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	savedPermission, err := s.permissionUsecase.Update(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -101,7 +102,7 @@ func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
 		Title: savedPermission.Title,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 
 }
 
@@ -110,10 +111,10 @@ func (s *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	err := s.permissionUsecase.Delete(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, nil, s.log)
+	utils.SendSuccessResponse(w, nil)
 	
 }

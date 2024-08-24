@@ -17,7 +17,9 @@ type RolesValidation struct {
 	log logger.Ilogger
 }
 
-func NewRolesValidation(l logger.Ilogger) IRolesValidation {
+func NewRolesValidation() IRolesValidation {
+	l := logger.Logger()
+	l.Debug("new role validation is created")
 	return &RolesValidation{log: l}
 }
 

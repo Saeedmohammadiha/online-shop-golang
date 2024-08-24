@@ -13,8 +13,9 @@ import (
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.IUserRepository, l logger.Ilogger) func(w http.ResponseWriter, r *http.Request) {
+func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.IUserRepository) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+		l := logger.Logger()
 		//check the header if there is a token
 		ctx := r.Context()
 		authorizationHeader := r.Header.Get("Authorization")
@@ -22,7 +23,7 @@ func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.
 		if authorizationHeader == "" {
 			l.Debug("authorizationHeader", authorizationHeader)
 			err := apperrors.NewAuthenticationError("the token is not provided", nil)
-			utils.SendErrorResponse(ctx, err, w, l)
+			utils.SendErrorResponse(ctx, err, w)
 			return
 		}
 		authorizationHeaderArray := strings.Split(authorizationHeader, " ")
@@ -32,16 +33,16 @@ func AuthProtect(f func(w http.ResponseWriter, r *http.Request), u repositories.
 		ctx = context.WithValue(ctx, utils.TOKEN, token)
 		// decode token
 
-		claims, err := internaljwt.New(l).DecodeToken(token)
+		claims, err := internaljwt.New().DecodeToken(token)
 		if err != nil {
-			utils.SendErrorResponse(ctx, err, w, l)
+			utils.SendErrorResponse(ctx, err, w)
 			return
 		}
 
 		// get the user data from the db
 		user, err := u.GetById(ctx, claims.UserID)
 		if err != nil {
-			utils.SendErrorResponse(ctx, err, w, l)
+			utils.SendErrorResponse(ctx, err, w)
 			return
 		}
 		// check if the token

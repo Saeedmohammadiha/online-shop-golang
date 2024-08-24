@@ -17,7 +17,9 @@ type PermissionValidation struct {
 	log logger.Ilogger
 }
 
-func NewPermissionValidation(l logger.Ilogger) IPermissionValidation {
+func NewPermissionValidation() IPermissionValidation {
+	l := logger.Logger()
+	l.Debug("new permission validation is created")
 	return &PermissionValidation{log: l}
 }
 

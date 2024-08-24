@@ -7,19 +7,18 @@ import (
 	"github.com/OnlineShop/internal/app/services"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/app/validation"
-	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-func RegisterRoleRoutes(r router.IRouter, RepositoryFactory repositories.RepositoryFactory, l logger.Ilogger) {
+func RegisterRoleRoutes(r router.IRouter, RepositoryFactory repositories.RepositoryFactory) {
 
-	rolesValidator := validation.NewRolesValidation(l)
-	rolesUsecase := usecases.NewRolesUsecases(RepositoryFactory.RolesRepository, RepositoryFactory.PermissionRepository, rolesValidator, l)
-	rolesService := services.NewRolesService(rolesUsecase, l)
+	rolesValidator := validation.NewRolesValidation()
+	rolesUsecase := usecases.NewRolesUsecases(RepositoryFactory.RolesRepository, RepositoryFactory.PermissionRepository, rolesValidator)
+	rolesService := services.NewRolesService(rolesUsecase, )
 
 	rolesRouter := r.CreateSubRouter("/roles")
-	rolesRouter.RegisterRoute("GET", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.GetAll, []string{"readPermissions"}, l), RepositoryFactory.UserRepository, l))
-	rolesRouter.RegisterRoute("POST", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Create, []string{"createPermission"}, l), RepositoryFactory.UserRepository, l))
-	rolesRouter.RegisterRoute("PUT", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Update, []string{"updatePermission"}, l), RepositoryFactory.UserRepository, l))
-	rolesRouter.RegisterRoute("GET", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.GetById, []string{"readPermissions"}, l), RepositoryFactory.UserRepository, l))
-	rolesRouter.RegisterRoute("DELETE", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Delete, []string{"deletePermission"}, l), RepositoryFactory.UserRepository, l))
+	rolesRouter.RegisterRoute("GET", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.GetAll, []string{"readPermissions"}), RepositoryFactory.UserRepository))
+	rolesRouter.RegisterRoute("POST", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Create, []string{"createPermission"}), RepositoryFactory.UserRepository))
+	rolesRouter.RegisterRoute("PUT", "", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Update, []string{"updatePermission"}), RepositoryFactory.UserRepository))
+	rolesRouter.RegisterRoute("GET", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.GetById, []string{"readPermissions"}), RepositoryFactory.UserRepository))
+	rolesRouter.RegisterRoute("DELETE", "/{id}", middlewares.AuthProtect(middlewares.GuardRoute(rolesService.Delete, []string{"deletePermission"}), RepositoryFactory.UserRepository))
 }

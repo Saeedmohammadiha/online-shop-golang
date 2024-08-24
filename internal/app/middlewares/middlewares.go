@@ -2,8 +2,6 @@ package middlewares
 
 import (
 	"net/http"
-
-	"github.com/OnlineShop/internal/pkg/logger"
 )
 
 type Imiddlewares interface {
@@ -11,12 +9,8 @@ type Imiddlewares interface {
 	SanitizeURLParamsMiddleware(next http.Handler) http.Handler
 }
 
-type Middlewares struct {
-	log logger.Ilogger
-}
+type Middlewares struct{}
 
-func New(l logger.Ilogger) Imiddlewares {
-	return &Middlewares{
-		log: l,
-	}
+func New() Imiddlewares {
+	return &Middlewares{}
 }

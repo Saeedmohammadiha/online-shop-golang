@@ -29,7 +29,9 @@ type UserUsecase struct {
 	repository repositories.IUserRepository
 }
 
-func NewUserUsecase(r repositories.IUserRepository, v validation.IUserValidation, l logger.Ilogger) IUserUsecase {
+func NewUserUsecase(r repositories.IUserRepository, v validation.IUserValidation) IUserUsecase {
+	l := logger.Logger()
+	l.Debug("new user usecase is created")
 	return &UserUsecase{
 		log:        l,
 		validator:  v,
@@ -82,7 +84,7 @@ func (u *UserUsecase) Update(ctx context.Context, data *dto.CreateUserRequest) (
 
 func (u *UserUsecase) Delete(ctx context.Context) *apperrors.AppError {
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return apperrors.NewBadRequestError("there is no param", err)
 	}
@@ -102,7 +104,7 @@ func (u *UserUsecase) Delete(ctx context.Context) *apperrors.AppError {
 
 func (u *UserUsecase) GetById(ctx context.Context) (*models.User, *apperrors.AppError) {
 	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params, u.log)
+	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
 	if err != nil {
 		return nil, apperrors.NewBadRequestError("there is no param", err)
 	}

@@ -11,9 +11,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func MysqlDatabaseConnection(log logger.Ilogger) *gorm.DB {
+func MysqlDatabaseConnection() *gorm.DB {
 	// TODO: add retry logic
-
+	log := logger.Logger()
 	dsn := getDbConfig()
 	log.Info("got the dsn", dsn)
 

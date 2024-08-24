@@ -22,7 +22,8 @@ type UserService struct {
 	log         logger.Ilogger
 }
 
-func NewUserService(u usecases.IUserUsecase, l logger.Ilogger) IUserService {
+func NewUserService(u usecases.IUserUsecase) IUserService {
+	l := logger.Logger()
 	l.Info("permission service is created")
 	return &UserService{
 		log:         l,
@@ -35,11 +36,11 @@ func (s *UserService) GetAll(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	permissions, err := s.UserUsecase.GetAll(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &permissions, s.log)
+	utils.SendSuccessResponse(w, &permissions)
 
 }
 
@@ -47,13 +48,13 @@ func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody dto.CreateUserRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	user, err := s.UserUsecase.Create(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -66,7 +67,7 @@ func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber: user.PhoneNumber,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 
 }
 
@@ -75,11 +76,11 @@ func (s *UserService) GetById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	user, err := s.UserUsecase.GetById(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, &user, s.log)
+	utils.SendSuccessResponse(w, &user)
 
 }
 
@@ -87,13 +88,13 @@ func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	var requestBody dto.CreateUserRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody, s.log); err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
+		utils.SendErrorResponse(ctx, err, w)
 	}
 
 	updatedUser, err := s.UserUsecase.Update(ctx, &requestBody)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
@@ -106,7 +107,7 @@ func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber: updatedUser.PhoneNumber,
 	}
 
-	utils.SendSuccessResponse(w, &responseValue, s.log)
+	utils.SendSuccessResponse(w, &responseValue)
 
 }
 
@@ -115,10 +116,10 @@ func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	err := s.UserUsecase.Delete(ctx)
 	if err != nil {
-		utils.SendErrorResponse(ctx, err, w, s.log)
+		utils.SendErrorResponse(ctx, err, w)
 		return
 	}
 
-	utils.SendSuccessResponse(w, nil, s.log)
+	utils.SendSuccessResponse(w, nil)
 
 }

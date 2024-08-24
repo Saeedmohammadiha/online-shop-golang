@@ -26,9 +26,10 @@ type PermissionRepository struct {
 	log logger.Ilogger
 }
 
-func NewPermissionRepository(db *gorm.DB, log logger.Ilogger) IPermissionRepository {
-	log.Debug("permission Repository is created")
-	return &PermissionRepository{Db: db, log: log}
+func NewPermissionRepository(db *gorm.DB) IPermissionRepository {
+	l := logger.Logger()
+	l.Debug("permission Repository is created")
+	return &PermissionRepository{Db: db, log: l}
 }
 
 func (r *PermissionRepository) GetByIds(ctx context.Context, permissionIds []int) (*[]models.Permission, *apperrors.AppError) {

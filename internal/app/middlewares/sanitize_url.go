@@ -6,11 +6,13 @@ import (
 	"net/http"
 
 	"github.com/OnlineShop/internal/app/utils"
+	"github.com/OnlineShop/internal/pkg/logger"
 )
 
 // SanitizeURLParamsMiddleware sanitizes URL query parameters and adds them to the context.
 func (m *Middlewares) SanitizeURLParamsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		l := logger.Logger()
 		// Sanitize query parameters
 		sanitizedQueryParams := make(map[string][]string)
 		for key, values := range r.URL.Query() {
@@ -18,7 +20,7 @@ func (m *Middlewares) SanitizeURLParamsMiddleware(next http.Handler) http.Handle
 			sanitizedValues := make([]string, len(values))
 			for i, value := range values {
 				sanitizedValues[i] = template.HTMLEscapeString(value)
-				m.log.Infof("sanitize the param %s , to the %s", value, sanitizedValues[i])
+				l.Infof("sanitize the param %s , to the %s", value, sanitizedValues[i])
 			}
 			sanitizedQueryParams[sanitizedKey] = sanitizedValues
 		}
@@ -26,7 +28,7 @@ func (m *Middlewares) SanitizeURLParamsMiddleware(next http.Handler) http.Handle
 		// Enrich context with sanitized parameters
 		ctx := context.WithValue(r.Context(), utils.REQUEST_PARAMS, sanitizedQueryParams)
 		r = r.WithContext(ctx)
-		m.log.Info("add the sanitized data to the context and pass to next handler", "params", sanitizedQueryParams)
+		l.Info("add the sanitized data to the context and pass to next handler", "params", sanitizedQueryParams)
 
 		// Continue with the next handler
 		next.ServeHTTP(w, r)

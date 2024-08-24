@@ -53,7 +53,8 @@ func responseGenerator(err *apperrors.AppError) *dto.Error {
 	return &res
 }
 
-func SendErrorResponse(ctx context.Context, err *apperrors.AppError, w http.ResponseWriter, l logger.Ilogger) {
+func SendErrorResponse(ctx context.Context, err *apperrors.AppError, w http.ResponseWriter) {
+	l := logger.Logger()
 	response := responseGenerator(err)
 
 	w.Header().Set("Content-Type", "application/json")
