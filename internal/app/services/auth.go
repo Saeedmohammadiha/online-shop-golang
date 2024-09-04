@@ -1,8 +1,12 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
+	dto "github.com/OnlineShop/internal/app/dto/auth"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/app/utils"
 
@@ -16,7 +20,7 @@ type IAuthService interface {
 }
 type AuthService struct {
 	authUsecase usecases.IAuthUsecases
-	log logger.Ilogger
+	log         logger.Ilogger
 }
 
 func NewAuthService(u usecases.IAuthUsecases) IAuthService {
@@ -42,9 +46,19 @@ func (a *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (a *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	var requestBody dto.LoginRequest
 
-	responseData, err := a.authUsecase.Login(ctx)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
+	}
+
+	responseData, err := a.authUsecase.Login(ctx, &requestBody)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
@@ -56,9 +70,18 @@ func (a *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 
 func (a *AuthService) Refresh(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	var requestBody dto.RefreshRequest
 
-	responseData, err := a.authUsecase.Refresh(ctx)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
+	}
+	responseData, err := a.authUsecase.Refresh(ctx, &requestBody)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return

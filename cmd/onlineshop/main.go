@@ -21,9 +21,9 @@ func main() {
 	RepositoryFactory := repositories.NewRepositoryFactory(db)
 
 	appRouter := router.New()
-	middles := middlewares.New()
-	appRouter.Use(middles.SanitizeURLParamsMiddleware)
-	appRouter.Use(middles.SanitizeBodyMiddleware)
+	// middles := middlewares.New()
+	// appRouter.Use(middles.SanitizeURLParamsMiddleware)
+	// appRouter.Use(middles.SanitizeBodyMiddleware)
 
 	// register routes
 	v1.RegisterRoutes(appRouter, RepositoryFactory)

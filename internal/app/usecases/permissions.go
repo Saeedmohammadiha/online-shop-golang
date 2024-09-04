@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"errors"
+	"net/url"
 	"strconv"
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
@@ -18,9 +19,9 @@ import (
 type IPermissionUsecases interface {
 	Create(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError)
 	Update(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError)
-	Delete(ctx context.Context) *apperrors.AppError
+	Delete(ctx context.Context, params url.Values) *apperrors.AppError
 	GetAll(ctx context.Context) (*[]models.Permission, *apperrors.AppError)
-	GetById(ctx context.Context) (*models.Permission, *apperrors.AppError)
+	GetById(ctx context.Context, params url.Values) (*models.Permission, *apperrors.AppError)
 }
 
 type PermissionUsecase struct {
@@ -39,17 +40,12 @@ func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPe
 	}
 }
 
-func (u *PermissionUsecase) GetById(ctx context.Context) (*models.Permission, *apperrors.AppError) {
-	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
-	if err != nil {
-		return nil, apperrors.NewBadRequestError("there is no param", err)
-	}
+func (u *PermissionUsecase) GetById(ctx context.Context, params url.Values) (*models.Permission, *apperrors.AppError) {
 
-	permissionId, error := strconv.Atoi(params)
-	if error != nil {
-		return nil, apperrors.NewBadRequestError("you need to pass the id", err)
-	}
+	permissionId := int(params.Get("id"))
+	// if permissionId == nil {
+	// 	return nil, apperrors.NewBadRequestError("you need to pass the id", err)
+	// }
 
 	permission, err := u.repository.GetById(ctx, permissionId)
 	if err != nil {
@@ -100,7 +96,7 @@ func (u *PermissionUsecase) Update(ctx context.Context, data *dto.PermissionCrea
 
 func (u *PermissionUsecase) Create(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError) {
 
-	if err := u.validator.ValidateCreatePermission(ctx,data); err != nil {
+	if err := u.validator.ValidateCreatePermission(ctx, data); err != nil {
 		return nil, err
 	}
 

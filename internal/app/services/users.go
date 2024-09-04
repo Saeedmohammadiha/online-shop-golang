@@ -1,8 +1,11 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/users"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/app/utils"
@@ -46,10 +49,15 @@ func (s *UserService) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
 	var requestBody dto.CreateUserRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		utils.SendErrorResponse(ctx, err, w)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
 	}
 
 	user, err := s.UserUsecase.Create(ctx, &requestBody)
@@ -86,10 +94,16 @@ func (s *UserService) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+
 	var requestBody dto.CreateUserRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		utils.SendErrorResponse(ctx, err, w)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
 	}
 
 	updatedUser, err := s.UserUsecase.Update(ctx, &requestBody)

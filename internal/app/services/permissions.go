@@ -1,8 +1,11 @@
 package services
 
 import (
+	"context"
+	"encoding/json"
 	"net/http"
 
+	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/pkg/logger"
@@ -47,10 +50,17 @@ func (s *PermissionService) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	// Create a new context with requestbody
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+
 	var requestBody permissionDto.PermissionCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		utils.SendErrorResponse(ctx, err, w)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
 	}
 
 	savedPermission, err := s.permissionUsecase.Create(ctx, &requestBody)
@@ -72,7 +82,9 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	permission, err := s.permissionUsecase.GetById(ctx)
+	params := r.URL.Query()
+	
+	permission, err := s.permissionUsecase.GetById(ctx,params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
@@ -84,10 +96,17 @@ func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	// Create a new context with requestbody
+	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+
 	var requestBody permissionDto.PermissionCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		utils.SendErrorResponse(ctx, err, w)
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
 	}
 
 	savedPermission, err := s.permissionUsecase.Update(ctx, &requestBody)
@@ -116,5 +135,5 @@ func (s *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.SendSuccessResponse(w, nil)
-	
+
 }

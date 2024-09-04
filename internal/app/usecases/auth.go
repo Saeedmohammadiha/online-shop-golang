@@ -14,9 +14,9 @@ import (
 )
 
 type IAuthUsecases interface {
-	Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError)
+	Login(ctx context.Context,requestBody *dto.LoginRequest) (*dto.LoginResponse, *apperrors.AppError)
 	Logout(ctx context.Context) (*dto.LogoutResponse, *apperrors.AppError)
-	Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError)
+	Refresh(ctx context.Context,requestBody *dto.RefreshRequest) (*dto.RefreshResponse, *apperrors.AppError)
 }
 
 type AuthUsecase struct {
@@ -65,14 +65,11 @@ func (a *AuthUsecase) Logout(ctx context.Context) (*dto.LogoutResponse, *apperro
 	}, nil
 }
 
-func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors.AppError) {
+func (a *AuthUsecase) Login(ctx context.Context,requestBody *dto.LoginRequest) (*dto.LoginResponse, *apperrors.AppError) {
 
-	var requestBody dto.LoginRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		return nil, err
-	}
+	
 	//validate the inputs
-	if err := a.validator.ValidateLogin(ctx,&requestBody); err != nil {
+	if err := a.validator.ValidateLogin(ctx,requestBody); err != nil {
 		return nil, err
 	}
 
@@ -118,13 +115,9 @@ func (a *AuthUsecase) Login(ctx context.Context) (*dto.LoginResponse, *apperrors
 	return &responseData, nil
 }
 
-func (a *AuthUsecase) Refresh(ctx context.Context) (*dto.RefreshResponse, *apperrors.AppError) {
+func (a *AuthUsecase) Refresh(ctx context.Context,requestBody *dto.RefreshRequest) (*dto.RefreshResponse, *apperrors.AppError) {
 
-	var requestBody dto.RefreshRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		// utils.SendErrorResponse(ctx, err, w, a.log)
-		return nil, err
-	}
+	
 
 	// check if the refreshToken is valid
 
