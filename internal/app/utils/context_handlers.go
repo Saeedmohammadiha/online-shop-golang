@@ -8,18 +8,18 @@ import (
 	"github.com/OnlineShop/internal/pkg/logger"
 )
 
-type requestBody string
-type requestParams string
+
 type user string
 type token string
+type requestId string
 
-const REQUEST_PARAMS requestParams = "params"
-const REQUEST_BODY requestBody = "requestBody"
+
 const USER user = "user"
 const TOKEN token = "token"
+const REQUESTID requestId = "requestId"
 
 type ContextKeys interface {
-	requestParams | requestBody | user | token
+	 user | token | requestId
 }
 
 func GetValueFromCtx[T ContextKeys, U interface{}](ctx context.Context, key T, valueContainer *U) *apperrors.AppError {
