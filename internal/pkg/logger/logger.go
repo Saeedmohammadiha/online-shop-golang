@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"log"
 	"os"
 
 	"go.uber.org/zap"
@@ -22,6 +23,7 @@ type Ilogger interface {
 	Warnf(msg string, args ...interface{})
 	Errorf(msg string, args ...interface{})
 	Fatalf(msg string, args ...interface{})
+	StandardLogger() *log.Logger 
 	Sync() error
 }
 
@@ -101,6 +103,7 @@ func (l *logger) Sync() error {
 }
 
 
+
 func init() {
 	logInstance = new()
 }
@@ -108,4 +111,21 @@ func init() {
 // Exported function to access the logger instance
 func Logger() Ilogger {
 	return logInstance
+}
+
+
+
+// this is wrapper to zap for implementing the logger interface from standard library
+type zapWriter struct {
+	logger Ilogger
+}
+
+func (zw *zapWriter) Write(p []byte) (n int, err error) {
+	// Write log output from http.Server to Zap
+	zw.logger.Error(string(p))
+	return len(p), nil
+}
+
+func (l *logger) StandardLogger() *log.Logger {
+	return log.New(&zapWriter{logger: l}, "", log.LstdFlags) 
 }

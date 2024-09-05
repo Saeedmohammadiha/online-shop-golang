@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/OnlineShop/internal/pkg/logger"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -49,7 +50,7 @@ func (r *MuxRouter) RegisterRoute(method string, url string, f func(w http.Respo
 }
 
 func (r *MuxRouter) CreateSubRouter(prefix string) IRouter {
-	 r.log.Info("a subRouter is created", "rout:", prefix)
+	r.log.Info("a subRouter is created", "rout:", prefix)
 	subRouter := r.Router.PathPrefix(prefix).Subrouter()
 	return &MuxRouter{Router: subRouter, log: r.log}
 }
@@ -60,9 +61,18 @@ func (r *MuxRouter) Use(middleware func(http.Handler) http.Handler) {
 }
 
 func (r *MuxRouter) Serve(port string) {
+
+	corsMiddleware := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),              
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
+	
 	srv := &http.Server{
-		Addr:    port,
-		Handler: r.Router,
+		Addr:     port,
+		Handler:  corsMiddleware(r.Router),
+		ErrorLog: r.log.StandardLogger(),
+
 	}
 
 	go func() {
