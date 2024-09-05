@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 type IUserService interface {
@@ -49,7 +49,7 @@ func (s *UserService) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	ctx := r.Context()
 	var requestBody dto.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 
@@ -82,7 +82,8 @@ func (s *UserService) Create(w http.ResponseWriter, r *http.Request) {
 func (s *UserService) GetById(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	user, err := s.UserUsecase.GetById(ctx)
+	params := mux.Vars(r)
+	user, err := s.UserUsecase.GetById(ctx,params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
@@ -94,7 +95,7 @@ func (s *UserService) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	ctx := r.Context()
 
 	var requestBody dto.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -128,7 +129,8 @@ func (s *UserService) Update(w http.ResponseWriter, r *http.Request) {
 func (s *UserService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	err := s.UserUsecase.Delete(ctx)
+	params := mux.Vars(r)
+	err := s.UserUsecase.Delete(ctx, params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return

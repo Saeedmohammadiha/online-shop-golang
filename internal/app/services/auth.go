@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -46,7 +45,7 @@ func (a *AuthService) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (a *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	ctx :=r.Context()
 	var requestBody dto.LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -70,7 +69,7 @@ func (a *AuthService) Login(w http.ResponseWriter, r *http.Request) {
 
 func (a *AuthService) Refresh(w http.ResponseWriter, r *http.Request) {
 
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	ctx := r.Context()
 	var requestBody dto.RefreshRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {

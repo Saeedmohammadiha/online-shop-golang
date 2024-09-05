@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -9,6 +8,7 @@ import (
 	permissionDto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/pkg/logger"
+	"github.com/gorilla/mux"
 
 	"github.com/OnlineShop/internal/app/utils"
 )
@@ -50,8 +50,8 @@ func (s *PermissionService) GetAll(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 
-	// Create a new context with requestbody
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	
+	ctx := r.Context()
 
 	var requestBody permissionDto.PermissionCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -82,9 +82,9 @@ func (s *PermissionService) Create(w http.ResponseWriter, r *http.Request) {
 func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	params := r.URL.Query()
-	
-	permission, err := s.permissionUsecase.GetById(ctx,params)
+	params := mux.Vars(r)
+
+	permission, err := s.permissionUsecase.GetById(ctx, params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
@@ -96,8 +96,8 @@ func (s *PermissionService) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
 
-	// Create a new context with requestbody
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	
+	ctx := r.Context()
 
 	var requestBody permissionDto.PermissionCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -128,7 +128,8 @@ func (s *PermissionService) Update(w http.ResponseWriter, r *http.Request) {
 func (s *PermissionService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	err := s.permissionUsecase.Delete(ctx)
+	params := mux.Vars(r)
+	err := s.permissionUsecase.Delete(ctx, params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return

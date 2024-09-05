@@ -3,14 +3,12 @@ package usecases
 import (
 	"context"
 	"errors"
-	"net/url"
 	"strconv"
 
 	apperrors "github.com/OnlineShop/internal/app/app_errors"
 	dto "github.com/OnlineShop/internal/app/dto/permissions"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
-	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
 	"github.com/OnlineShop/internal/pkg/logger"
 	"gorm.io/gorm"
@@ -19,9 +17,9 @@ import (
 type IPermissionUsecases interface {
 	Create(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError)
 	Update(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError)
-	Delete(ctx context.Context, params url.Values) *apperrors.AppError
+	Delete(ctx context.Context, params map[string]string) *apperrors.AppError
 	GetAll(ctx context.Context) (*[]models.Permission, *apperrors.AppError)
-	GetById(ctx context.Context, params url.Values) (*models.Permission, *apperrors.AppError)
+	GetById(ctx context.Context, params map[string]string) (*models.Permission, *apperrors.AppError)
 }
 
 type PermissionUsecase struct {
@@ -40,13 +38,11 @@ func NewPermissionUsecase(r repositories.IPermissionRepository, v validation.IPe
 	}
 }
 
-func (u *PermissionUsecase) GetById(ctx context.Context, params url.Values) (*models.Permission, *apperrors.AppError) {
-
-	permissionId := int(params.Get("id"))
-	// if permissionId == nil {
-	// 	return nil, apperrors.NewBadRequestError("you need to pass the id", err)
-	// }
-
+func (u *PermissionUsecase) GetById(ctx context.Context, params map[string]string) (*models.Permission, *apperrors.AppError) {
+	permissionId, error := strconv.Atoi(params["id"])
+	if error != nil {
+		return nil, apperrors.NewBadRequestError("you need to pass the id", error)
+	}
 	permission, err := u.repository.GetById(ctx, permissionId)
 	if err != nil {
 		return nil, err
@@ -64,19 +60,14 @@ func (u *PermissionUsecase) GetAll(ctx context.Context) (*[]models.Permission, *
 	return &permissions, nil
 }
 
-func (u *PermissionUsecase) Delete(ctx context.Context) *apperrors.AppError {
-	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
-	if err != nil {
-		return apperrors.NewBadRequestError("there is no param", err)
-	}
+func (u *PermissionUsecase) Delete(ctx context.Context, params map[string]string) *apperrors.AppError {
 
-	permissionId, error := strconv.Atoi(params)
+	permissionId, error := strconv.Atoi(params["id"])
 	if error != nil {
-		return apperrors.NewBadRequestError("you need to pass the id", err)
+		return apperrors.NewBadRequestError("you need to pass the id", error)
 	}
 
-	err = u.repository.Delete(ctx, permissionId)
+	err := u.repository.Delete(ctx, permissionId)
 	if err != nil {
 		return err
 	}
@@ -85,7 +76,10 @@ func (u *PermissionUsecase) Delete(ctx context.Context) *apperrors.AppError {
 }
 
 func (u *PermissionUsecase) Update(ctx context.Context, data *dto.PermissionCreateRequest) (*models.Permission, *apperrors.AppError) {
-	// TODO:needs to add validation
+
+	if err := u.validator.ValidateCreatePermission(ctx, data); err != nil {
+		return nil, err
+	}
 	updatedPermission := models.Permission{Title: data.Title}
 	if _, err := u.repository.Update(ctx, &updatedPermission); err != nil {
 		return nil, err

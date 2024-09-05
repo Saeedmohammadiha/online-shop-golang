@@ -5,7 +5,6 @@ import (
 	v1 "github.com/OnlineShop/internal/app/http/v1"
 	"github.com/OnlineShop/internal/pkg/logger"
 
-	"github.com/OnlineShop/internal/app/middlewares"
 	"github.com/OnlineShop/internal/app/repositories"
 	"github.com/OnlineShop/internal/app/router"
 )
@@ -21,9 +20,7 @@ func main() {
 	RepositoryFactory := repositories.NewRepositoryFactory(db)
 
 	appRouter := router.New()
-	// middles := middlewares.New()
-	// appRouter.Use(middles.SanitizeURLParamsMiddleware)
-	// appRouter.Use(middles.SanitizeBodyMiddleware)
+
 
 	// register routes
 	v1.RegisterRoutes(appRouter, RepositoryFactory)

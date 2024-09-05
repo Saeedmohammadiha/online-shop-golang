@@ -9,7 +9,6 @@ import (
 	dto "github.com/OnlineShop/internal/app/dto/users"
 	"github.com/OnlineShop/internal/app/models"
 	"github.com/OnlineShop/internal/app/repositories"
-	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/app/validation"
 	"github.com/OnlineShop/internal/pkg/logger"
 	"gorm.io/gorm"
@@ -18,9 +17,9 @@ import (
 type IUserUsecase interface {
 	Create(ctx context.Context, data *dto.CreateUserRequest) (*models.User, *apperrors.AppError)
 	Update(ctx context.Context, data *dto.CreateUserRequest) (*models.User, *apperrors.AppError)
-	Delete(ctx context.Context) *apperrors.AppError
+	Delete(ctx context.Context, params map[string]string) *apperrors.AppError
 	GetAll(ctx context.Context) (*[]models.User, *apperrors.AppError)
-	GetById(ctx context.Context) (*models.User, *apperrors.AppError)
+	GetById(ctx context.Context, params map[string]string) (*models.User, *apperrors.AppError)
 }
 
 type UserUsecase struct {
@@ -67,7 +66,9 @@ func (u *UserUsecase) Create(ctx context.Context, data *dto.CreateUserRequest) (
 }
 
 func (u *UserUsecase) Update(ctx context.Context, data *dto.CreateUserRequest) (*models.User, *apperrors.AppError) {
-	// TODO:needs to add validation
+	if err := u.validator.ValidateCreateUser(ctx, data); err != nil {
+		return nil, err
+	}
 	updatedUser := models.User{
 		Name:        data.Name,
 		LastName:    data.LastName,
@@ -82,19 +83,15 @@ func (u *UserUsecase) Update(ctx context.Context, data *dto.CreateUserRequest) (
 
 }
 
-func (u *UserUsecase) Delete(ctx context.Context) *apperrors.AppError {
-	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
-	if err != nil {
-		return apperrors.NewBadRequestError("there is no param", err)
-	}
+func (u *UserUsecase) Delete(ctx context.Context, params map[string]string) *apperrors.AppError {
+	
 
-	userId, error := strconv.Atoi(params)
+	userId, error := strconv.Atoi(params["id"])
 	if error != nil {
-		return apperrors.NewBadRequestError("you need to pass the id", err)
+		return apperrors.NewBadRequestError("you need to pass the id", error)
 	}
 
-	err = u.repository.Delete(ctx, userId)
+	err := u.repository.Delete(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -102,16 +99,12 @@ func (u *UserUsecase) Delete(ctx context.Context) *apperrors.AppError {
 	return nil
 }
 
-func (u *UserUsecase) GetById(ctx context.Context) (*models.User, *apperrors.AppError) {
-	var params string
-	err := utils.GetValueFromCtx(ctx, utils.REQUEST_PARAMS, &params)
-	if err != nil {
-		return nil, apperrors.NewBadRequestError("there is no param", err)
-	}
+func (u *UserUsecase) GetById(ctx context.Context, params map[string]string) (*models.User, *apperrors.AppError) {
+	
 
-	userId, error := strconv.Atoi(params)
+	userId, error := strconv.Atoi(params["id"])
 	if error != nil {
-		return nil, apperrors.NewBadRequestError("you need to pass the id", err)
+		return nil, apperrors.NewBadRequestError("you need to pass the id", error)
 	}
 
 	user, err := u.repository.GetById(ctx, userId)

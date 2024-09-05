@@ -1,7 +1,6 @@
 package services
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/OnlineShop/internal/app/usecases"
 	"github.com/OnlineShop/internal/app/utils"
 	"github.com/OnlineShop/internal/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 type IRolesService interface {
@@ -50,7 +50,8 @@ func (s *RolesService) GetAll(w http.ResponseWriter, r *http.Request) {
 func (s *RolesService) GetById(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	permission, err := s.rolesUsecase.GetById(ctx)
+	params := mux.Vars(r)
+	permission, err := s.rolesUsecase.GetById(ctx,params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
@@ -62,7 +63,7 @@ func (s *RolesService) GetById(w http.ResponseWriter, r *http.Request) {
 
 func (s *RolesService) Create(w http.ResponseWriter, r *http.Request) {
 
-	ctx := context.WithValue(r.Context(), utils.REQUEST_BODY, r.Body)
+	ctx := r.Context()
 	var requestBody dto.RoleCreateRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -96,12 +97,19 @@ func (s *RolesService) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *RolesService) Update(w http.ResponseWriter, r *http.Request) {
-
 	ctx := r.Context()
 	var requestBody dto.RoleCreateRequest
-	if err := utils.GetValueFromCtx(ctx, utils.REQUEST_BODY, &requestBody); err != nil {
-		utils.SendErrorResponse(ctx, err, w)
+
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+
+		utils.SendErrorResponse(
+			ctx,
+			apperrors.NewBadRequestError("invalid json", err),
+			w,
+		)
 	}
+
+	
 
 	updatedRole, err := s.rolesUsecase.Update(ctx, &requestBody)
 	if err != nil {
@@ -127,7 +135,8 @@ func (s *RolesService) Update(w http.ResponseWriter, r *http.Request) {
 func (s *RolesService) Delete(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
-	err := s.rolesUsecase.Delete(ctx)
+	params := mux.Vars(r)
+	err := s.rolesUsecase.Delete(ctx,params)
 	if err != nil {
 		utils.SendErrorResponse(ctx, err, w)
 		return
